@@ -18,15 +18,13 @@ SELECT city.id, city.name, city.kind, city.latitude, city.longitude
   WHERE city.belong_to = state.id AND state.kind = 'state' AND state.name = 'paraiba';
 
 
-
-
 #### fnf-instituition-all
 SELECT 
   row_number() OVER () as id,
-  source.name oname,
+  source.acronym oname,
   source.latitude oy, 
   source.longitude ox, 
-  target.name dname, 
+  target.acronym dname, 
   cityTarget.latitude dy, 
   cityTarget.longitude dx,
   count(*) trips
@@ -52,10 +50,10 @@ ORDER BY oname, dname;
 #### fnf-city-all
 SELECT 
   row_number() OVER () as id,
-  source.name oname,
+  source.acronym oname,
   source.latitude oy, 
   source.longitude ox, 
-  cityTarget.name dname, 
+  cityTarget.acronym dname, 
   cityTarget.latitude dy, 
   cityTarget.longitude dx,
   count(*) trips
@@ -81,10 +79,10 @@ ORDER BY oname, dname;
 #### fnf-state-all
 SELECT 
   row_number() OVER () as id,
-  stateSource.name oname,
+  stateSource.acronym oname,
   stateSource.latitude oy, 
   stateSource.longitude ox, 
-  stateTarget.name dname, 
+  stateTarget.acronym dname, 
   stateTarget.latitude dy, 
   stateTarget.longitude dx,
   count(*) trips
@@ -114,10 +112,10 @@ ORDER BY oname, dname;
 #### fnf-region-1950-2013
 SELECT 
   row_number() OVER () as id,
-  regionSource.name oname,
+  regionSource.acronym oname,
   regionSource.latitude oy, 
   regionSource.longitude ox, 
-  regionTarget.name dname, 
+  regionTarget.acronym dname, 
   regionTarget.latitude dy, 
   regionTarget.longitude dx,
   edge.end_year eyear,
@@ -151,10 +149,10 @@ ORDER BY oname, dname, eyear;
 #### fnf-region-all
 SELECT 
   row_number() OVER () as id,
-  regionSource.name oname,
+  regionSource.acronym oname,
   regionSource.latitude oy, 
   regionSource.longitude ox, 
-  regionTarget.name dname, 
+  regionTarget.acronym dname, 
   regionTarget.latitude dy, 
   regionTarget.longitude dx,
   count(*) trips
@@ -185,10 +183,10 @@ ORDER BY oname, dname;
 #### fff-region-all
 SELECT 
   row_number() OVER () as id,
-  regionSource.name oname,
+  regionSource.acronym oname,
   regionSource.latitude oy, 
   regionSource.longitude ox, 
-  regionTarget.name dname, 
+  regionTarget.acronym dname, 
   regionTarget.latitude dy, 
   regionTarget.longitude dx,
   count(*) trips
@@ -223,10 +221,10 @@ ORDER BY oname, dname;
 #### fft-region-all
 SELECT 
   row_number() OVER () as id,
-  regionSource.name oname,
+  regionSource.acronym oname,
   regionSource.latitude oy, 
   regionSource.longitude ox, 
-  regionTarget.name dname, 
+  regionTarget.acronym dname, 
   regionTarget.latitude dy, 
   regionTarget.longitude dx,
   count(*) trips
@@ -263,10 +261,10 @@ SELECT
   row_number() OVER () as id, oname, oy, ox, dname, dy, dx, count(*) trips
 FROM 
   (SELECT 
-    regionSource.name oname,
+    regionSource.acronym oname,
     regionSource.latitude oy, 
     regionSource.longitude ox, 
-    regionTarget.name dname, 
+    regionTarget.acronym dname, 
     regionTarget.latitude dy, 
     regionTarget.longitude dx
   FROM 
@@ -295,10 +293,10 @@ FROM
     regionTarget.kind = 'region'
   UNION ALL
   SELECT 
-    regionSource.name oname,
+    regionSource.acronym oname,
     regionSource.latitude oy, 
     regionSource.longitude ox, 
-    regionTarget.name dname, 
+    regionTarget.acronym dname, 
     regionTarget.latitude dy, 
     regionTarget.longitude dx
   FROM 
@@ -327,10 +325,10 @@ FROM
     regionTarget.kind = 'region'
   UNION ALL
   SELECT 
-    regionSource.name oname,
+    regionSource.acronym oname,
     regionSource.latitude oy, 
     regionSource.longitude ox, 
-    regionTarget.name dname, 
+    regionTarget.acronym dname, 
     regionTarget.latitude dy, 
     regionTarget.longitude dx
   FROM 
@@ -365,10 +363,10 @@ SELECT
   row_number() OVER () as id, oname, oy, ox, dname, dy, dx, count(*) trips
 FROM
   (SELECT 
-    countrySource.name oname,
+    countrySource.acronym oname,
     countrySource.latitude oy, 
     countrySource.longitude ox, 
-    countryTarget.name dname, 
+    countryTarget.acronym dname, 
     countryTarget.latitude dy, 
     countryTarget.longitude dx
   FROM 
@@ -397,10 +395,10 @@ FROM
     countryTarget.kind = 'country'
   UNION ALL
   SELECT 
-    countrySource.name oname,
+    countrySource.acronym oname,
     countrySource.latitude oy, 
     countrySource.longitude ox, 
-    countryTarget.name dname, 
+    countryTarget.acronym dname, 
     countryTarget.latitude dy, 
     countryTarget.longitude dx
   FROM 
@@ -425,10 +423,10 @@ FROM
     countryTarget.kind = 'country'
   UNION ALL
   SELECT 
-    countrySource.name oname,
+    countrySource.acronym oname,
     countrySource.latitude oy, 
     countrySource.longitude ox, 
-    countryTarget.name dname, 
+    countryTarget.acronym dname, 
     countryTarget.latitude dy, 
     countryTarget.longitude dx
   FROM 
@@ -453,10 +451,10 @@ FROM
     countryTarget.kind = 'country'
   UNION ALL
   SELECT 
-    countrySource.name oname,
+    countrySource.acronym oname,
     countrySource.latitude oy, 
     countrySource.longitude ox, 
-    countryTarget.name dname, 
+    countryTarget.acronym dname, 
     countryTarget.latitude dy, 
     countryTarget.longitude dx
   FROM 
@@ -479,141 +477,186 @@ GROUP BY
   oy, ox, oname, dx, dy, dname
 ORDER BY oname, dname;
 
-#### fnf-continent-all
+
+###### CONTINENT ######
+
+instituition -> 
+  city ->
+    country -> continent
+    state -> region -> country -> continent
+
+nacional instituition
+foreign instituition
+nacional city
+foreign city
+
+fnf
+  city <-> instituition
+fff, fft
+  instituition <-> instituition
+all
+  city <-> instituition, instituition <-> instituition
+
+city ->
+
 SELECT 
   row_number() OVER () as id, oname, oy, ox, dname, dy, dx, count(*) trips
 FROM
-  (SELECT 
-    continentSource.name oname,
-    continentSource.latitude oy, 
-    continentSource.longitude ox, 
-    continentTarget.name dname, 
-    continentTarget.latitude dy, 
-    continentTarget.longitude dx
-  FROM 
-    public.place source,
-    public.place target,
-    public.place cityTaget,
-    public.place stateSource,
-    public.place stateTarget,
-    public.place regionSource,
-    public.place regionTarget,
-    public.place countrySource,
-    public.place countryTarget,
-    public.place continentSource,
-    public.place continentTarget,
-    public.edge edge
-  WHERE 
-    source.id = edge.source AND
-    source.belong_to = stateSource.id AND
-    stateSource.belong_to = regionSource.id AND
-    stateSource.kind = 'state' AND
-    regionSource.belong_to = countrySource.id AND
-    countrySource.belong_to = continentSource.id AND
-    continentSource.kind = 'continent' AND
-    
-    target.id = edge.target AND
-    target.belong_to = cityTaget.id AND
-    cityTaget.belong_to = stateTarget.id AND
-    stateTarget.belong_to = regionTarget.id AND
-    stateTarget.kind = 'state' AND
-    regionTarget.belong_to = countryTarget.id AND
-    countryTarget.belong_to = continentTarget.id AND
-    continentTarget.kind = 'continent'
-  UNION ALL
-  SELECT 
-    continentSource.name oname,
-    continentSource.latitude oy, 
-    continentSource.longitude ox, 
-    continentTarget.name dname, 
-    continentTarget.latitude dy, 
-    continentTarget.longitude dx
-  FROM 
-    public.place source,
-    public.place target,
-    public.place cityTaget,
-    public.place stateSource,
-    public.place regionSource,
-    public.place countrySource,
-    public.place countryTarget,
-    public.place continentSource,
-    public.place continentTarget,
-    public.edge edge
-  WHERE 
-    source.id = edge.source AND
-    source.belong_to = stateSource.id AND
-    stateSource.belong_to = regionSource.id AND
-    stateSource.kind = 'state' AND
-    regionSource.belong_to = countrySource.id AND
-    countrySource.belong_to = continentSource.id AND
-    continentSource.kind = 'continent' AND
-    
-    target.id = edge.target AND
-    target.belong_to = cityTaget.id AND
-    cityTaget.belong_to = countryTarget.id AND
-    countryTarget.belong_to = continentTarget.id AND
-    continentTarget.kind = 'continent'
-  UNION ALL
-  SELECT 
-    continentSource.name oname,
-    continentSource.latitude oy, 
-    continentSource.longitude ox, 
-    continentTarget.name dname, 
-    continentTarget.latitude dy, 
-    continentTarget.longitude dx
-  FROM 
-    public.place source,
-    public.place target,
-    public.place cityTaget,
-    public.place stateTarget,
-    public.place regionTarget,
-    public.place countrySource,
-    public.place countryTarget,
-    public.place continentSource,
-    public.place continentTarget,
-    public.edge edge
-  WHERE 
-    source.id = edge.source AND
-    source.belong_to = countrySource.id AND
-    countrySource.belong_to = continentSource.id AND
-    continentSource.kind = 'continent' AND
-    
-    target.id = edge.target AND
-    target.belong_to = cityTaget.id AND
-    cityTaget.belong_to = stateTarget.id AND
-    stateTarget.belong_to = regionTarget.id AND
-    stateTarget.kind = 'state' AND
-    regionTarget.belong_to = countryTarget.id AND
-    countryTarget.belong_to = continentTarget.id AND
-    continentTarget.kind = 'continent'
-  UNION ALL
-  SELECT 
-    continentSource.name oname,
-    continentSource.latitude oy, 
-    continentSource.longitude ox, 
-    continentTarget.name dname, 
-    continentTarget.latitude dy, 
-    continentTarget.longitude dx
-  FROM 
-    public.place source,
-    public.place target,
-    public.place cityTaget,
-    public.place countrySource,
-    public.place countryTarget,
-    public.place continentSource,
-    public.place continentTarget,
-    public.edge edge
-  WHERE 
-    source.id = edge.source AND
-    source.belong_to = countrySource.id AND
-    countrySource.belong_to = continentSource.id AND
-    continentSource.kind = 'continent' AND
-    
-    target.id = edge.target AND
-    target.belong_to = cityTaget.id AND
-    cityTaget.belong_to = countryTarget.id AND
-    countryTarget.belong_to = continentTarget.id AND
-    continentTarget.kind = 'continent') flows
+
+(SELECT 
+  continentSource.acronym oname,
+  continentSource.latitude oy, 
+  continentSource.longitude ox, 
+  continentTarget.acronym dname, 
+  continentTarget.latitude dy, 
+  continentTarget.longitude dx
+
+-- nacional instituition
+FROM 
+  public.place instituitionSource,
+  public.place citySource,
+  public.place stateSource,
+  public.place regionSource,
+  public.place countrySource,
+  public.place continentSource,
+  public.edge edge
+WHERE
+  instituitionSource.id = edge.source AND
+  instituitionSource.kind = 'instituition' AND
+  instituitionSource.belong_to = citySource.id AND
+  citySource.kind = 'city' AND
+  citySource.belong_to = stateSource.id AND
+  stateSource.kind = 'state' AND
+  stateSource.belong_to = regionSource.id AND
+  regionSource.kind = 'region' AND
+  regionSource.belong_to = countrySource.id AND
+  countrySource.kind = 'country' AND
+  countrySource.belong_to = continentSource.id AND
+  continentSource.kind = 'continent'
+
+-- foreign instituition
+FROM 
+  public.place instituitionSource,
+  public.place citySource,
+  public.place countrySource,
+  public.place continentSource,
+  public.edge edge
+WHERE
+  instituitionSource.id = edge.source AND
+  instituitionSource.kind = 'instituition' AND
+  instituitionSource.belong_to = citySource.id AND
+  citySource.kind = 'city' AND
+  citySource.belong_to = countrySource.id AND
+  countrySource.kind = 'country' AND
+  countrySource.belong_to = continentSource.id AND
+  continentSource.kind = 'continent'
+
+-- nacional city
+FROM 
+  public.place citySource,
+  public.place stateSource,
+  public.place regionSource,
+  public.place countrySource,
+  public.place continentSource,
+  public.edge edge
+WHERE
+  citySource.id = edge.source AND
+  citySource.kind = 'city' AND
+  citySource.belong_to = stateSource.id AND
+  stateSource.kind = 'state' AND
+  stateSource.belong_to = regionSource.id AND
+  regionSource.kind = 'region' AND
+  regionSource.belong_to = countrySource.id AND
+  countrySource.kind = 'country' AND
+  countrySource.belong_to = continentSource.id AND
+  continentSource.kind = 'continent'
+
+-- foreign city
+FROM 
+  public.place citySource,
+  public.place countrySource,
+  public.place continentSource,
+  public.edge edge
+WHERE
+  citySource.id = edge.source AND
+  citySource.belong_to = countrySource.id AND
+  citySource.kind = 'city' AND
+  countrySource.belong_to = continentSource.id AND
+  countrySource.kind = 'country' AND
+  continentSource.kind = 'continent') flows
+
 GROUP BY
   oy, ox, oname, dx, dy, dname
-ORDER BY oname, dname;
+ORDER BY oname, dname
+
+#### fnf
+city <-> instituition
+
+city -> state -> region -> country -> continent 
+instituition -> city -> state -> region -> country -> continent
+
+city -> state -> region -> country -> continent 
+instituition -> city -> country -> continent
+
+city -> country -> continent
+instituition -> city -> state -> region -> country -> continent
+
+city -> country -> continent 
+instituition -> city -> country -> continent
+
+
+#### fff
+instituition <-> instituition (WHERE kind != work)
+
+instituition -> city -> state -> region -> country -> continent
+instituition -> city -> state -> region -> country -> continent
+
+instituition -> city -> state -> region -> country -> continent
+instituition -> city -> country -> continent
+
+instituition -> city -> country -> continent
+instituition -> city -> state -> region -> country -> continent
+
+instituition -> city -> country -> continent
+instituition -> city -> country -> continent
+
+#### fft
+instituition <-> instituition (WHERE kind = work)
+
+instituition -> city -> state -> region -> country -> continent
+instituition -> city -> state -> region -> country -> continent
+
+instituition -> city -> state -> region -> country -> continent
+instituition -> city -> country -> continent
+
+instituition -> city -> country -> continent
+instituition -> city -> state -> region -> country -> continent
+
+instituition -> city -> country -> continent
+instituition -> city -> country -> continent
+
+#### all
+
+city -> state -> region -> country -> continent 
+instituition -> city -> state -> region -> country -> continent
+
+city -> state -> region -> country -> continent 
+instituition -> city -> country -> continent
+
+city -> country -> continent
+instituition -> city -> state -> region -> country -> continent
+
+city -> country -> continent 
+instituition -> city -> country -> continent
+
+instituition -> city -> state -> region -> country -> continent
+instituition -> city -> state -> region -> country -> continent
+
+instituition -> city -> state -> region -> country -> continent
+instituition -> city -> country -> continent
+
+instituition -> city -> country -> continent
+instituition -> city -> state -> region -> country -> continent
+
+instituition -> city -> country -> continent
+instituition -> city -> country -> continent

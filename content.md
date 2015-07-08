@@ -7,3 +7,12 @@ RPostgreSQL
 
 circlize
 * http://www.rdocumentation.org/packages/circlize/functions/circos.text
+
+# TODO
+
+* sigla a partir dos nomes
+* otimizar as consultas sql
+* mc histórico
+* cor
+* evolução do número de doutroes
+* substituir os demais gráficos do lattesGephi (treemap, scatterplot, histograma)

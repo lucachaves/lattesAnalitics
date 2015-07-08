@@ -1,9 +1,9 @@
 SELECT 
   row_number() OVER () as id,
-  regionSource.name oname,
+  regionSource.acronym oname,
   regionSource.latitude oy, 
   regionSource.longitude ox, 
-  regionTarget.name dname, 
+  regionTarget.acronym dname, 
   regionTarget.latitude dy, 
   regionTarget.longitude dx,
   edge.end_year eyear,
@@ -21,12 +21,14 @@ WHERE
   edge.end_year BETWEEN _START_YEAR_ AND _END_YEAR_ AND
   source.id = edge.source AND
   source.belong_to = stateSource.id AND
+  stateSource.kind = 'state' AND
   stateSource.belong_to = regionSource.id AND
   regionSource.kind = 'region' AND
   target.id = edge.target AND
   target.belong_to = cityTaget.id AND
   cityTaget.belong_to = stateTarget.id AND
   stateTarget.belong_to = regionTarget.id AND
+  stateTarget.kind = 'state' AND
   regionTarget.kind = 'region'
 GROUP BY
   oy, ox, oname, dx, dy, dname, eyear 

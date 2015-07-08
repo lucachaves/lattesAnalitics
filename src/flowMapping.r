@@ -154,19 +154,3 @@ generate.gm <- function(theme, kindFlow, kindContext, kindTime, valueTime=null){
     }
   }
 }
-
-# generate.gm("white", "fnf", "region", "all")
-# generate.gm("white", "fff", "region", "all")
-# generate.gm("white", "fft", "region", "all")
-# generate.gm("white", "all", "region", "all")
-# generate.gm("white", "fnf", "region", "rangeAll", c(2000,2013))
-generate.gm("white", "fnf", "region", "rangeYear", c(2000,2013))
-
-# TODO
-# point
-# same color (point edge)
-# loop
-# splitSize / log scale
-# theme
-
-print("END")

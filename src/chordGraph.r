@@ -131,15 +131,4 @@ generate.mfc <- function(kindFlow, kindContext, kindTime, valueTime=null){
 		  generate.chord(imageFile, mat, kindContext)
 		}
 	}
-	print("END")
 }
-
-# generate.mfc("fnf", "region", "all")
-# generate.mfc("fnf", "region", "rangeAll", c(2000,2013))
-generate.mfc("fnf", "region", "rangeYear", c(2000,2013))
-# generate.mfc("fnf", "region", "rangeYear", c(2000,2000))
-
-# TODO
-# 1973, 1983, 1993, 2003, 2013
-# sigla
-# ordem
