@@ -159,7 +159,7 @@ generate.all.query <- function(kindContext, kindFlow, kindTime, valueTime, globa
 	union
 }
 
-generate.global.query <- function(kindContext, kindFlow, kindTime='all', valueTime=NULL, global=TRUE){
+generate.query <- function(kindContext, kindFlow, kindTime='all', valueTime=NULL, global=TRUE){
 	global.select <- "SELECT row_number() OVER () as id, oname, oy, ox, dname, dy, dx, count(*) trips"
 	global.from <- paste("FROM (", generate.all.query(kindContext, kindFlow, kindTime, valueTime, global),") flow",sep='')
 	global.group <- "GROUP BY oy, ox, oname, dx, dy, dname"
@@ -173,18 +173,18 @@ generate.global.query <- function(kindContext, kindFlow, kindTime='all', valueTi
 	)
 }
 
-# print(generate.global.query('continent','fff'))
-# print(generate.global.query('continent','fnf'))
-# print(generate.global.query('continent','fft'))
-# print(generate.global.query('continent','all'))
-# print(generate.global.query('country','fft'))
-# print(generate.global.query('country','all'))
-# print(generate.global.query('city','fnf'))
-# print(generate.global.query('state','fnf'))
-# print(generate.global.query('region','fnf'))
-# print(generate.global.query('region','fnf'))
-# print(generate.global.query('region','fnf', 'range', c(1950,2013)))
-# print(generate.global.query('region','fnf', 'year', 2013))
+# print(generate.query('continent','fff'))
+# print(generate.query('continent','fnf'))
+# print(generate.query('continent','fft'))
+# print(generate.query('continent','all'))
+# print(generate.query('country','fft'))
+# print(generate.query('country','all'))
+# print(generate.query('city','fnf'))
+# print(generate.query('state','fnf'))
+# print(generate.query('region','fnf'))
+# print(generate.query('region','fnf'))
+# print(generate.query('region','fnf', 'range', c(1950,2013)))
+# print(generate.query('region','fnf', 'year', 2013))
 # print(generate.specific.from('continent', 'source', TRUE, FALSE))
 # print(generate.specific.from('continent', 'source', TRUE, TRUE))
 # print(generate.specific.where('continent', 'source', TRUE, TRUE))

@@ -16,3 +16,8 @@ circlize
 * cor
 * evolução do número de doutroes
 * substituir os demais gráficos do lattesGephi (treemap, scatterplot, histograma)
+
+## MIX
+
+Indent SQL
+http://www.statmethods.net/management/operators.html

@@ -5,6 +5,7 @@ library(maptools)
 library(geosphere)
 library(grid)
 library(RPostgreSQL)
+source('generateQuery.r')
 
 draw.map <- function(year, ylim=c(0,85)) {
   # https://wwwn.cdc.gov/epiinfo/html/shapefiles.htm
@@ -111,14 +112,9 @@ draw.map.flow <- function(file_map, title, theme, flows, splitSize){
   dev.off()
 }
 
-# theme (white,black)
-# kindFlow(all,fnf,fff,ffft,graduacao,doutorado...)
-# kindContext(instituition,city,state,region,country,continent)
-# kindTime(all,rangeAll,rangeYear)
 generate.gm <- function(theme, kindFlow, kindContext, kindTime, valueTime=null){
   drv <- dbDriver("PostgreSQL")
   con <- dbConnect(drv, dbname="mobilitygraph",host="192.168.56.101",port=5432,user="postgres",password="postgres")
-  sqlFile <- paste('./data/table-',kindContext,'/',kindFlow,'-',kindTime, '.sql',sep='')
   
   splitSize <- 0
   if(kindContext == 'region'){
@@ -127,29 +123,26 @@ generate.gm <- function(theme, kindFlow, kindContext, kindTime, valueTime=null){
 
   if(kindTime == "all"){
     print("generating graph all")
-    sql <- paste(readLines(sqlFile),collapse=" ")
+    sql <- generate.query(kindContext, kindFlow)
     rs <- dbSendQuery(con,sql)
     flows <- fetch(rs,n=-1)
-    imageFile <- paste('./data/gm-',kindContext,'/',kindFlow,'-',kindTime, '.png',sep='')
+    imageFile <- paste('./image/gm/',kindContext,'-',kindFlow,'-',kindTime, '.png',sep='')
     draw.map.flow(imageFile, '', theme, flows, splitSize)
   }else if(kindTime == "rangeAll"){
     print("generating graph rangeAll")
-    sql <- paste(readLines(sqlFile),collapse=" ")
-    sql <- gsub("_START_YEAR_", valueTime[1], sql)
-    sql <- gsub('_END_YEAR_', valueTime[2], sql)
+    sql <- generate.query(kindContext, kindFlow, 'range', valueTime)
     rs <- dbSendQuery(con,sql)
     flows <- fetch(rs,n=-1)
     range <- paste(valueTime[1],'-',valueTime[2],sep='')
-    imageFile <- paste('./data/gm-',kindContext,'/',kindFlow,'-',range,'.png',sep='')
+    imageFile <- paste('./image/gm/',kindContext,'-',kindFlow,'-',range,'.png',sep='')
     draw.map.flow(imageFile, range, theme, flows, splitSize)
   }else if(kindTime == "rangeYear"){
     for (year in valueTime[1]:valueTime[2]) {
       print(paste("generating graph year ",year,sep=""))
-      sql <- paste(readLines(sqlFile),collapse=" ")
-      sql <- gsub('_YEAR_', year, sql)
+      sql <- generate.query(kindContext, kindFlow, 'year', year)
       rs <- dbSendQuery(con,sql)
       flows <- fetch(rs,n=-1)
-      imageFile <- paste('./data/gm-',kindContext,'/',kindFlow,'-',year,'.png',sep='')
+      imageFile <- paste('./image/gm/',kindContext,'-',kindFlow,'-',year,'.png',sep='')
       draw.map.flow(imageFile, year, theme, flows, splitSize)
     }
   }

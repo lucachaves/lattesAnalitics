@@ -1,8 +1,6 @@
 require 'csv'
 require 'byebug'
 require 'progress_bar'
-# require 'sequel'
-# db_inep = Sequel.connect('postgres://postgres:postgres@10.0.1.7/inep-curso')
 
 @latitude_continent = {}
 @latitude_continent["america do norte"] = {latitude: 48.1667, longitude: -100.1667}
@@ -343,7 +341,7 @@ csv_string = CSV.generate(:col_sep => ",") do |csv|
 	}
 	
 end
-File.write("./data/nodes-flow-instituition.csv", csv_string)
+File.write("nodes-flow-instituition.csv", csv_string)
 
 ids16flow = {}
 bar = ProgressBar.new(ids16.size)
@@ -420,7 +418,7 @@ csv_string = CSV.generate(:col_sep => ",") do |csv|
 	}
 end
 csv_string.gsub! "\"\"", ""
-File.write("./data/edges-flow-instituition.csv", csv_string)
+File.write("edges-flow-instituition.csv", csv_string)
 
 
 puts "fim"

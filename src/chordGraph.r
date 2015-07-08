@@ -2,15 +2,52 @@ library(circlize)
 library(gridExtra)
 library(ggplot2)
 library(RPostgreSQL)
+source('generateQuery.r')
 
 generate.grid.col <- function(kindContext){
 	grid.col = NULL
 	if(kindContext == "region"){
-		grid.col["centro-oeste"] = "#00FFFF"
-		grid.col["nordeste"] = "#FF0000"
-		grid.col["norte"] = "#FF00FF"
-		grid.col["sudeste"] = "#FFFF00"
-		grid.col["sul"] = "#CCCCCC"
+		grid.col["CO"] = "#00FFFF"
+		grid.col["NE"] = "#FF0000"
+		grid.col["N"] = "#FF00FF"
+		grid.col["SE"] = "#FFFF00"
+		grid.col["S"] = "#CCCCCC"
+	}else if(kindContext == "continent"){
+		grid.col["AMN"] = "#00FF00"
+		grid.col["AMC"] = "#00FFFF"
+		grid.col["AMS"] = "#FF0000"
+		grid.col["EU"] = "#FF00FF"
+		grid.col["AF"] = "#FFFF00"
+		grid.col["OC"] = "#CCCCCC"
+		grid.col["AS"] = "#0000AA"
+	}else if(kindContext == "state"){
+		grid.col["AC"] = "#00FF00"
+		grid.col["AL"] = "#00FFFF"
+		grid.col["AP"] = "#FF0000"
+		grid.col["AM"] = "#FF00FF"
+		grid.col["BA"] = "#FFFF00"
+		grid.col["CE"] = "#CCCCCC"
+		grid.col["DF"] = "#0000AA"
+		grid.col["ES"] = "#00FFAA"
+		grid.col["GO"] = "#00AA00"
+		grid.col["MA"] = "#00AAFF"
+		grid.col["MT"] = "#00AAAA"
+		grid.col["MS"] = "#FF00AA"
+		grid.col["MG"] = "#FFFFAA"
+		grid.col["PA"] = "#FFAA00"
+		grid.col["PB"] = "#FFAAFF"
+		grid.col["PR"] = "#FFAAAA"
+		grid.col["PE"] = "#AA0000"
+		grid.col["PI"] = "#AA00FF"
+		grid.col["RJ"] = "#AA00AA"
+		grid.col["RN"] = "#AAFF00"
+		grid.col["RS"] = "#AAFFFF"
+		grid.col["RO"] = "#AAFFAA"
+		grid.col["RR"] = "#AAAA00"
+		grid.col["SC"] = "#AAAAFF"
+		grid.col["SP"] = "#AFAFFF"
+		grid.col["SE"] = "#FAFAFA"
+		grid.col["TO"] = "#AFAFAF"
 	}else if(kindContext == "country"){
 		grid.col["brazil"] = "#00FF00"
 		grid.col["spain"] = "#00FFFF"
@@ -80,11 +117,10 @@ generate.chord <- function(imageFile, mat, kindContext){
 generate.mfc <- function(kindFlow, kindContext, kindTime, valueTime=null){
   drv <- dbDriver("PostgreSQL")
   con <- dbConnect(drv, dbname="mobilitygraph",host="192.168.56.101",port=5432,user="postgres",password="postgres")
-  sqlFile <- paste('./data/table-',kindContext,'/',kindFlow,'-',kindTime, '.sql',sep='')
   
   if(kindTime == "all"){
   	print("generating chord all")
-  	sql <- paste(readLines(sqlFile),collapse=" ")
+  	sql <- generate.query(kindContext, kindFlow)
   	rs <- dbSendQuery(con,sql)
   	flows <- fetch(rs,n=-1)
   	names <- union(flows$oname,flows$dname)
@@ -94,13 +130,11 @@ generate.mfc <- function(kindFlow, kindContext, kindTime, valueTime=null){
   	for(i in 1:nrow(flows)){
   		mat[flows[i,]$oname, flows[i,]$dname] = flows[i,]$trips
   	}
-  	imageFile <- paste('./data/mfc-',kindContext,'/',kindFlow,'-',kindTime, '.png',sep='')
+  	imageFile <- paste('./image/mfc/',kindContext,'-',kindFlow,'-',kindTime, '.png',sep='')
   	generate.chord(imageFile, mat, kindContext)
 	}else if(kindTime == "rangeAll"){
 		print("generating chord rangeAll")
-  	sql <- paste(readLines(sqlFile),collapse=" ")
-		sql <- gsub("_START_YEAR_", valueTime[1], sql)
-    sql <- gsub('_END_YEAR_', valueTime[2], sql)
+  	sql <- generate.query(kindContext, kindFlow, 'range', valueTime)
   	rs <- dbSendQuery(con,sql)
   	flows <- fetch(rs,n=-1)
   	names <- union(flows$oname,flows$dname)
@@ -111,13 +145,12 @@ generate.mfc <- function(kindFlow, kindContext, kindTime, valueTime=null){
   		mat[flows[i,]$oname, flows[i,]$dname] = flows[i,]$trips
   	}
   	range <- paste(valueTime[1],'-',valueTime[2],sep='')
-    imageFile <- paste('./data/mfc-',kindContext,'/',kindFlow,'-',range,'.png',sep='')
+    imageFile <- paste('./image/mfc/',kindContext,'-',kindFlow,'-',range,'.png',sep='')
   	generate.chord(imageFile, mat, kindContext)
 	}else if(kindTime == "rangeYear"){
 		for (year in valueTime[1]:valueTime[2]) {
 		  print(paste("generating chord year ",year,sep=""))
-		  sql <- paste(readLines(sqlFile),collapse=" ")
-		  sql <- gsub('_YEAR_', year, sql)
+		  sql <- generate.query(kindContext, kindFlow, 'year', year)
 		  rs <- dbSendQuery(con,sql)
 		  flows <- fetch(rs,n=-1)
 		  names <- union(flows$oname,flows$dname)
@@ -127,7 +160,7 @@ generate.mfc <- function(kindFlow, kindContext, kindTime, valueTime=null){
 		  for(i in 1:nrow(flows)){
 		  	mat[flows[i,]$oname, flows[i,]$dname] = flows[i,]$trips
 		  }
-		  imageFile <- paste('./data/mfc-',kindContext,'/',kindFlow,'-',year,'.png',sep='')
+		  imageFile <- paste('./image/mfc/',kindContext,'-',kindFlow,'-',year,'.png',sep='')
 		  generate.chord(imageFile, mat, kindContext)
 		}
 	}
