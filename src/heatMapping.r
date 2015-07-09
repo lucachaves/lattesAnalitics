@@ -4,16 +4,9 @@ library(RPostgreSQL)
 # library(scales)
 source('generateQuery.r')
 
-generate.heat <- function(imageFile, df, kindContext){
-  width <- height <- 1000
-  if(kindContext == "region"){
-    width <- 500
-    height <- 450
-  }else if(kindContext == "continent"){
-    width <- 600
-    height <- 500
-  }
-  png(filename = imageFile, width = width, height = height)
+generate.heat <- function(imageFile, df, size=c(1000,1000), label=c('origem','destino')){
+  png(filename = imageFile, width = size[1], height = size[2])
+  
   max_value <- max(df$valor)
 
   gg <- ggplot(df, aes(x=from, y=to)) +
@@ -28,115 +21,88 @@ generate.heat <- function(imageFile, df, kindContext){
       axis.title=element_text(size=14,face="bold"),
       axis.text.x=element_text(angle=-90)
     )+
-    xlab("origem")+ylab("destino")#+ggtitle("Flow")
+    xlab(label[1])+ylab(label[2])#+ggtitle("Flow")
     # scale_x_discrete(limits=c("AMS","AMC","AMN","EU","AS","OC","AF"))+
     # scale_y_discrete(limits=c("AMS","AMC","AMN","EU","AS","OC","AF"))
 
   print(gg)
   dev.off()
 }
-scale.value <- function(data, scale){
-  if(scale == "normal"){
-    # 
-  }else if(scale == "log"){
-    if(data < 1){
-      data <- 0
-    }else{
+
+convert.scale.value <- function(data, scale){
+  if(scale == "log"){
+    if(data >= 1){
       data <- log(data)
+    }else{
+      data <- 0
     }
   }
   data
 }
 
-generate.mc <- function(kindFlow, kindContext, kindTime='all', valueTime=NULL, scale='normal'){
-  # subDir <- paste('data/mc-',kindContext,sep="")
-  # if(!file.exists(subDir)){
-  #   dir.create(file.path('./', subDir))
-  # }
-
-  drv <- dbDriver("PostgreSQL")
-  con <- dbConnect(drv, dbname="mobilitygraph",host="192.168.56.101",port=5432,user="postgres",password="postgres")
-
-  if(kindTime == "all"){
-    print("generating heat all")
-    sql <- generate.query(kindContext, kindFlow)
-    rs <- dbSendQuery(con,sql)
-    flows <- fetch(rs,n=-1)
-    flows$trips <- scale.value(flows$trips, scale)
-    names <- union(flows$oname,flows$dname)
-    mat <- matrix(0, nrow = length(names), ncol = length(names))
-    rownames(mat) = names
-    colnames(mat) = names
-    for(i in 1:nrow(flows)){
-      mat[flows[i,]$oname, flows[i,]$dname] = flows[i,]$trips
-    }
-    from <- c()
-    to <- c()
-    trips <- c()
-    for(i in 1:nrow(mat)){
-      for(j in 1:ncol(mat)){
-        from <- c(from, names[i])
-        to <- c(to, names[j])
-        trips <- c(trips, mat[i,j])
-      }
-    }
-    df <- data.frame(from=from, to=to,valor=trips)
-    imageFile <- paste('./image/mc/',kindContext,'-',kindFlow,'-',scale,'-',kindTime, '.png',sep='')
-    generate.heat(imageFile, df, kindContext)
-  }else if(kindTime == "rangeAll"){
-    print("generating graph rangeAll")
-    sql <- generate.query(kindContext, kindFlow, 'range', valueTime)
-    rs <- dbSendQuery(con,sql)
-    flows <- fetch(rs,n=-1)
-    flows$trips <- scale.value(flows$trips, scale)
-    names <- union(flows$oname,flows$dname)
-    mat <- matrix(0, nrow = length(names), ncol = length(names))
-    rownames(mat) = names
-    colnames(mat) = names
-    for(i in 1:nrow(flows)){
-      mat[flows[i,]$oname, flows[i,]$dname] = flows[i,]$trips
-    }
-    from <- c()
-    to <- c()
-    trips <- c()
-    for(i in 1:nrow(mat)){
-      for(j in 1:ncol(mat)){
-        from <- c(from, names[i])
-        to <- c(to, names[j])
-        trips <- c(trips, mat[i,j])
-      }
-    }
-    df <- data.frame(from=from, to=to,valor=trips)
-    range <- paste(valueTime[1],'-',valueTime[2],sep='')
-    imageFile <- paste('./image/mc/',kindContext,'-',kindFlow,'-',scale,'-',range,'.png',sep='')
-    generate.heat(imageFile, df, kindContext)
-  }else if(kindTime == "rangeYear"){
-    for (year in valueTime[1]:valueTime[2]) {
-      print(paste("generating graph year ",year,sep=""))
-      sql <- generate.query(kindContext, kindFlow, 'year', year)
-      rs <- dbSendQuery(con,sql)
-      flows <- fetch(rs,n=-1)
-      flows$trips <- scale.value(flows$trips, scale)
-      names <- union(flows$oname,flows$dname)
-      mat <- matrix(0, nrow = length(names), ncol = length(names))
-      rownames(mat) = names
-      colnames(mat) = names
-      for(i in 1:nrow(flows)){
-        mat[flows[i,]$oname, flows[i,]$dname] = flows[i,]$trips
-      }
-      from <- c()
-      to <- c()
-      trips <- c()
-      for(i in 1:nrow(mat)){
-        for(j in 1:ncol(mat)){
-          from <- c(from, names[i])
-          to <- c(to, names[j])
-          trips <- c(trips, mat[i,j])
-        }
-      }
-      df <- data.frame(from=from, to=to,valor=trips)
-      imageFile <- paste('./image/mc/',kindContext,'-',kindFlow,'-',scale,'-',year,'.png',sep='')
-      generate.heat(imageFile, df, kindContext)
+convert.result.todf.timeline <- function(fname, tname, value){
+  namescol <- 1900:2013
+  namesrow <- unique(tname)
+  mat <- matrix(0, nrow = length(namesrow), ncol = length(namescol))
+  rownames(mat) <- namesrow
+  colnames(mat) <- namescol
+  # print(mat)
+  for(i in 1:length(fname)){
+    # print(paste(fname[i], tname[i],value[i]))
+    mat[fname[i], tname[i]] = value[i]
+  }
+  from <- c()
+  to <- c()
+  trips <- c()
+  for(i in 1:nrow(mat)){
+    for(j in 1:ncol(mat)){
+      from <- c(from, namescol[i])
+      to <- c(to, namesrow[j])
+      trips <- c(trips, mat[i,j])
     }
   }
+  df <- data.frame(from=from, to=to,valor=trips)
+  df
+}
+
+convert.result.todf.square <- function(fname, tname, value){
+  names <- union(fname,tname)
+  mat <- matrix(0, nrow = length(names), ncol = length(names))
+  rownames(mat) <- names
+  colnames(mat) <- names
+  for(i in 1:length(fname)){
+    mat[fname[i], tname[i]] = value[i]
+  }
+  from <- c()
+  to <- c()
+  trips <- c()
+  for(i in 1:nrow(mat)){
+    for(j in 1:ncol(mat)){
+      from <- c(from, names[i])
+      to <- c(to, names[j])
+      trips <- c(trips, mat[i,j])
+    }
+  }
+  df <- data.frame(from=from, to=to,valor=trips)
+  df
+}
+
+generate.mc.timeline <- function(imageFile, flows, size=c(1000,300), scale = 'normal'){
+  flows$trips <- convert.scale.value(flows$trips, scale)
+  df <- convert.result.todf.timeline(flows$eyear, flows$place, flows$degree)
+  generate.heat(imageFile, df, label=c('anos','instituição'))
+}
+
+generate.mc.square <- function(imageFile, flows, kindContext, scale = 'normal'){
+  flows$trips <- convert.scale.value(flows$trips, scale)
+  df <- convert.result.todf.square(flows$oname, flows$dname, flows$trips)
+  imageFile <- paste('./image/mc/',scale,'-',imageFile,sep='')
+  size <- if(kindContext == "region"){
+    c(500,450)
+  }else if(kindContext == "continent"){
+    c(600, 500)
+  }else{
+    c(1000,1000)
+  }
+  generate.heat(imageFile, df, size)    
 }

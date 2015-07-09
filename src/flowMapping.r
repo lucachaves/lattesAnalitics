@@ -7,12 +7,31 @@ library(grid)
 library(RPostgreSQL)
 source('generateQuery.r')
 
-draw.map <- function(year, ylim=c(0,85)) {
-  # https://wwwn.cdc.gov/epiinfo/html/shapefiles.htm
-  state.map <- readShapeSpatial("~/Documents/code/github/lucachaves/lattesGephi/src/flow-edges/gephi/data/BR/br.shp")
-  state.map.df <- fortify(state.map, region = "ADMIN_NAME")
-  
-  ggplot(state.map.df, aes(x=long, y=lat, group=group)) +
+draw.map <- function(kindContext, year, ylim=c(0,85)) {
+
+  shapeFile <- if(kindContext == 'region'){
+    'data/map/brasil_region/br.shp'
+  }else if(kindContext == 'state'){
+    'data/map/brasil_state/br.shp'
+  }else if(kindContext == 'continent'){
+    'data/map/continent/continent.shp'
+  }
+
+  field <- if(kindContext == 'region'){
+    'nome'
+  }else if(kindContext == 'state'){
+    'ADMIN_NAME'
+  }else if(kindContext == 'continent'){
+    'CONTINENT'
+  }
+
+  map.view <- if(kindContext == 'region' | kindContext == 'state' | kindContext == 'continent'){
+    fortify(readShapeSpatial(shapeFile), region = field)
+  }else{
+    map_data("world")
+  }
+
+  ggplot(map.view, aes(x=long, y=lat, group=group)) +
     # geom_polygon(size = 0.2, fill="#191919") + # fill = #FFFFFF, #CCCCCC, #F9F9F9
     geom_polygon(size = 0.2, fill="#FFFFFF") +
     geom_path(size=0.2, colour = "grey65") +
@@ -87,11 +106,14 @@ bezier.uv.merc.arc <- function(p1, p2) {
   arc
 }
 
-draw.map.flow <- function(file_map, title, theme, flows, splitSize){
-  png(filename = file_map, width = 1000, height = 1000)
+draw.map.flow <- function(kindContext, file_map, title, flows, splitSize){
+  width <- if(kindContext == 'region' | kindContext == 'state'){1000}else{1400}
+  height <- if(kindContext == 'region' | kindContext == 'state'){1000}else{750}
+
+  png(filename = file_map, width = width, height = height)
   
   gg <- NULL
-  gg <- draw.map(title, c(-90,90))
+  gg <- draw.map(kindContext, title, c(-90,90))
 
   for (i in 1:length(flows$trips)) {  
     arc <- bezier.uv.merc.arc(
@@ -112,38 +134,55 @@ draw.map.flow <- function(file_map, title, theme, flows, splitSize){
   dev.off()
 }
 
-generate.gm <- function(theme, kindFlow, kindContext, kindTime, valueTime=null){
-  drv <- dbDriver("PostgreSQL")
-  con <- dbConnect(drv, dbname="mobilitygraph",host="192.168.56.101",port=5432,user="postgres",password="postgres")
-  
-  splitSize <- 0
-  if(kindContext == 'region'){
-    splitSize <- 1500
-  }
+generate.gm <- function(imageFile, flows, theme, kindFlow, kindContext, kindTime){
 
-  if(kindTime == "all"){
-    print("generating graph all")
-    sql <- generate.query(kindContext, kindFlow)
-    rs <- dbSendQuery(con,sql)
-    flows <- fetch(rs,n=-1)
-    imageFile <- paste('./image/gm/',kindContext,'-',kindFlow,'-',kindTime, '.png',sep='')
-    draw.map.flow(imageFile, '', theme, flows, splitSize)
-  }else if(kindTime == "rangeAll"){
-    print("generating graph rangeAll")
-    sql <- generate.query(kindContext, kindFlow, 'range', valueTime)
-    rs <- dbSendQuery(con,sql)
-    flows <- fetch(rs,n=-1)
-    range <- paste(valueTime[1],'-',valueTime[2],sep='')
-    imageFile <- paste('./image/gm/',kindContext,'-',kindFlow,'-',range,'.png',sep='')
-    draw.map.flow(imageFile, range, theme, flows, splitSize)
-  }else if(kindTime == "rangeYear"){
-    for (year in valueTime[1]:valueTime[2]) {
-      print(paste("generating graph year ",year,sep=""))
-      sql <- generate.query(kindContext, kindFlow, 'year', year)
-      rs <- dbSendQuery(con,sql)
-      flows <- fetch(rs,n=-1)
-      imageFile <- paste('./image/gm/',kindContext,'-',kindFlow,'-',year,'.png',sep='')
-      draw.map.flow(imageFile, year, theme, flows, splitSize)
-    }
+  draw.map.theme <- theme
+
+  splitSize <- 0
+  if(kindContext == 'city' & kindFlow == 'all'){
+    splitSize <- 1000
+  }else if(kindContext == 'city'){
+    splitSize <- 50
+  }else if(kindContext == 'state' & kindFlow == 'fnf' & kindTime == 'all'){
+    splitSize <- 5000
+  }else if(kindContext == 'state' & kindFlow == 'fff' & kindTime == 'all'){
+    splitSize <- 5000
+  }else if(kindContext == 'state' & kindFlow == 'fft'){
+    splitSize <- 5000
+  }else if(kindContext == 'state' & kindFlow == 'all'){
+    splitSize <- 10000
+  }else if(kindContext == 'region' & kindTime == 'rangeYear'){
+    splitSize <- 500
+  }else if(kindContext == 'region'){
+    splitSize <- 1500
+  }else if(kindContext == 'state' & kindFlow == 'fnf' & kindTime == 'all'){
+    splitSize <- 500
+  }else if(kindContext == 'state' & kindFlow == 'fff' & kindTime == 'all'){
+    splitSize <- 500
+  }else if(kindContext == 'state' & kindFlow == 'fft'){
+    splitSize <- 500
+  }else if(kindContext == 'state' & kindFlow == 'all'){
+    splitSize <- 1000
+  }else if(kindContext == 'state'){
+    splitSize <- 50
+  }else if(kindContext == 'country' & kindFlow != 'fnf' & kindTime == 'all'){
+    splitSize <- 2000
+  }else if(kindContext == 'country' & kindFlow == 'fnf' & kindTime == 'all'){
+    splitSize <- 500
+  }else if(kindContext == 'country'){
+    splitSize <- 50
+  }else if(kindContext == 'continent' & kindFlow != 'fnf' & kindTime == 'all'){
+    splitSize <- 2000
+  }else if(kindContext == 'continent' & kindFlow != 'fnf'){
+    splitSize <- 200
+  }else if(kindContext == 'continent' & kindFlow == 'fnf' & kindTime == 'all'){
+    splitSize <- 500
+  }else if(kindContext == 'continent' & kindFlow == 'fnf'){
+    splitSize <- 30
+  }else if(kindContext == 'continent'){
+    splitSize <- 30
   }
+  imageFile <- paste('./image/gm/',imageFile,sep='')
+  draw.map.flow(kindContext, imageFile, '', flows, splitSize)
+
 }

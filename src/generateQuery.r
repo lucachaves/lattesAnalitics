@@ -68,16 +68,18 @@ generate.specific.query <- function(kindContext, nacionalSource, instituitionSou
 		generate.specific.from(kindContext, 'target', nacionalTarget, instituitionTarget),
 		sep=' '
 	)
+	where <- "WHERE"
+	if(length(filter)!=0){
+		where <- paste(where, paste(filter, collapse=' AND '),' AND ',sep=' ')
+	}
 	specific.where <- paste(
-		"WHERE",
+		where,
 		generate.specific.where(kindContext, 'source', nacionalSource, instituitionSource),
 		' AND ',
 		generate.specific.where(kindContext, 'target', nacionalTarget, instituitionTarget),
 		sep=' '
 	)
-	if(length(filter)!=0){
-		specific.where <- paste(specific.where, paste(filter, collapse=' AND '),sep=' AND ')
-	}
+	
 	paste(specific.select, specific.from, specific.where, sep= ' ')
 }
 

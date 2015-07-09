@@ -1,0 +1,23 @@
+[1] "BEGIN"
+[1] "fnf-region"
+[1] "fnf-region-rangeYear"
+[1] "year 2013"
+>>>> 09/07/2015 20:12:41
+SELECT row_number() OVER () as id, oname, oy, ox, dname, dy, dx, count(*) trips FROM (SELECT regionSource.acronym oname, regionSource.latitude oy, regionSource.longitude ox, regionTarget.acronym dname, regionTarget.latitude dy, regionTarget.longitude dx FROM  public.edge edge , public.place citySource, public.place stateSource, public.place regionSource , public.place instituitionTarget, public.place cityTarget, public.place stateTarget, public.place regionTarget WHERE edge.end_year = 2013  AND  edge.source = citySource.id AND citySource.kind ='city' AND citySource.belong_to = stateSource.id AND stateSource.kind ='state' AND stateSource.belong_to = regionSource.id AND regionSource.kind ='region'  AND  edge.target = instituitionTarget.id AND instituitionTarget.kind ='instituition' AND instituitionTarget.belong_to = cityTarget.id AND cityTarget.kind ='city' AND cityTarget.belong_to = stateTarget.id AND stateTarget.kind ='state' AND stateTarget.belong_to = regionTarget.id AND regionTarget.kind ='region') flow GROUP BY oy, ox, oname, dx, dy, dname ORDER BY oname, dname
+>>>> 09/07/2015 20:12:41
+c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
+ >>>> 09/07/2015 20:12:41
+c("CO", "CO", "CO", "CO", "N", "N", "N", "NE", "NE", "NE", "S", "S", "S", "S", "S", "SE", "SE", "SE", "SE", "SE")
+ >>>> 09/07/2015 20:12:41
+c(-15.298172, -15.298172, -15.298172, -15.298172, -4.603292, -4.603292, -4.603292, -8.624365, -8.624365, -8.624365, -27.542207, -27.542207, -27.542207, -27.542207, -27.542207, -19.730012, -19.730012, -19.730012, -19.730012, -19.730012)
+ >>>> 09/07/2015 20:12:41
+c(-54.305408, -54.305408, -54.305408, -54.305408, -59.199124, -59.199124, -59.199124, -41.742753, -41.742753, -41.742753, -52.252997, -52.252997, -52.252997, -52.252997, -52.252997, -45.48358, -45.48358, -45.48358, -45.48358, -45.48358)
+ >>>> 09/07/2015 20:12:41
+c("CO", "NE", "S", "SE", "CO", "N", "S", "NE", "S", "SE", "CO", "N", "NE", "S", "SE", "CO", "N", "NE", "S", "SE")
+ >>>> 09/07/2015 20:12:41
+c(-15.298172, -8.624365, -27.542207, -19.730012, -15.298172, -4.603292, -27.542207, -8.624365, -27.542207, -19.730012, -15.298172, -4.603292, -8.624365, -27.542207, -19.730012, -15.298172, -4.603292, -8.624365, -27.542207, -19.730012)
+ >>>> 09/07/2015 20:12:41
+c(-54.305408, -41.742753, -52.252997, -45.48358, -54.305408, -59.199124, -52.252997, -41.742753, -52.252997, -45.48358, -54.305408, -59.199124, -41.742753, -52.252997, -45.48358, -54.305408, -59.199124, -41.742753, -52.252997, -45.48358)
+ >>>> 09/07/2015 20:12:41
+c(7, 1, 1, 4, 1, 1, 1, 42, 4, 16, 4, 1, 1, 57, 19, 7, 3, 8, 15, 180)
+[1] "END"

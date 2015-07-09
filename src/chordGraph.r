@@ -114,54 +114,19 @@ generate.chord <- function(imageFile, mat, kindContext){
 	dev.off()
 }
 
-generate.mfc <- function(kindFlow, kindContext, kindTime, valueTime=null){
-  drv <- dbDriver("PostgreSQL")
-  con <- dbConnect(drv, dbname="mobilitygraph",host="192.168.56.101",port=5432,user="postgres",password="postgres")
-  
-  if(kindTime == "all"){
-  	print("generating chord all")
-  	sql <- generate.query(kindContext, kindFlow)
-  	rs <- dbSendQuery(con,sql)
-  	flows <- fetch(rs,n=-1)
-  	names <- union(flows$oname,flows$dname)
-  	mat <- matrix(0, nrow = length(names), ncol = length(names))
-  	rownames(mat) = names
-  	colnames(mat) = names
-  	for(i in 1:nrow(flows)){
-  		mat[flows[i,]$oname, flows[i,]$dname] = flows[i,]$trips
-  	}
-  	imageFile <- paste('./image/mfc/',kindContext,'-',kindFlow,'-',kindTime, '.png',sep='')
-  	generate.chord(imageFile, mat, kindContext)
-	}else if(kindTime == "rangeAll"){
-		print("generating chord rangeAll")
-  	sql <- generate.query(kindContext, kindFlow, 'range', valueTime)
-  	rs <- dbSendQuery(con,sql)
-  	flows <- fetch(rs,n=-1)
-  	names <- union(flows$oname,flows$dname)
-  	mat <- matrix(0, nrow = length(names), ncol = length(names))
-  	rownames(mat) = names
-  	colnames(mat) = names
-  	for(i in 1:nrow(flows)){
-  		mat[flows[i,]$oname, flows[i,]$dname] = flows[i,]$trips
-  	}
-  	range <- paste(valueTime[1],'-',valueTime[2],sep='')
-    imageFile <- paste('./image/mfc/',kindContext,'-',kindFlow,'-',range,'.png',sep='')
-  	generate.chord(imageFile, mat, kindContext)
-	}else if(kindTime == "rangeYear"){
-		for (year in valueTime[1]:valueTime[2]) {
-		  print(paste("generating chord year ",year,sep=""))
-		  sql <- generate.query(kindContext, kindFlow, 'year', year)
-		  rs <- dbSendQuery(con,sql)
-		  flows <- fetch(rs,n=-1)
-		  names <- union(flows$oname,flows$dname)
-		  mat <- matrix(0, nrow = length(names), ncol = length(names))
-		  rownames(mat) = names
-		  colnames(mat) = names
-		  for(i in 1:nrow(flows)){
-		  	mat[flows[i,]$oname, flows[i,]$dname] = flows[i,]$trips
-		  }
-		  imageFile <- paste('./image/mfc/',kindContext,'-',kindFlow,'-',year,'.png',sep='')
-		  generate.chord(imageFile, mat, kindContext)
-		}
+convert.result.tomatrix <- function(flows){
+	names <- union(flows$oname,flows$dname)
+	mat <- matrix(0, nrow = length(names), ncol = length(names))
+	rownames(mat) = names
+	colnames(mat) = names
+	for(i in 1:nrow(flows)){
+		mat[flows[i,]$oname, flows[i,]$dname] = flows[i,]$trips
 	}
+	mat
+}
+
+generate.mfc <- function(imageFile, flows, kindContext){
+	mat <- convert.result.tomatrix(flows)
+	imageFile <- paste('./image/mfc/',imageFile,sep='')
+	generate.chord(imageFile, mat, kindContext)
 }

@@ -21,3 +21,8 @@ circlize
 
 Indent SQL
 http://www.statmethods.net/management/operators.html
+
+Shapefile
+https://wwwn.cdc.gov/epiinfo/html/shapefiles.htm
+http://www.baruch.cuny.edu/geoportal/data/esri/esri_intl.htm
+http://www.arcgis.com/home/search.html?t=content&q=tags:continents
