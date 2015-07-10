@@ -1,11 +1,9 @@
 
 -- list regions
-SELECT id, name, kind, latitude, longitude, belong_to
-  FROM place where kind = 'region';
+SELECT * FROM place where kind = 'region';
 
 -- list countries
-SELECT id, name, kind, latitude, longitude, belong_to
-  FROM place where kind = 'country';
+SELECT * FROM place where kind = 'country';
 
 -- cities from states
 SELECT city.id, city.name, city.kind, city.latitude, city.longitude
@@ -28,6 +26,15 @@ GROUP BY
 ORDER BY
   degree DESC
 LIMIT 10
+
+-- UPDATE acronym by id
+UPDATE place SET acronym='UNICAMP' WHERE id = 450;
+
+
+
+
+
+
 
 
 

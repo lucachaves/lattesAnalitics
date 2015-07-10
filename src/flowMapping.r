@@ -4,8 +4,6 @@ library(ggplot2)
 library(maptools)
 library(geosphere)
 library(grid)
-library(RPostgreSQL)
-source('generateQuery.r')
 
 draw.map <- function(kindContext, year, ylim=c(0,85)) {
 

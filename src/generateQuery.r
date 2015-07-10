@@ -83,11 +83,10 @@ generate.specific.query <- function(kindContext, nacionalSource, instituitionSou
 	paste(specific.select, specific.from, specific.where, sep= ' ')
 }
 
-generate.all.query <- function(kindContext, kindFlow, kindTime, valueTime, global){
+generate.all.query <- function(kindContext, kindFlow, kindTime, valueTime, global, filter=c()){
 	if(kindContext == 'region' | kindContext == 'state'){
 		global <- FALSE
 	}
-	filter <- c()
 	if(kindTime == 'range'){
 		filter <- c(filter, paste("edge.end_year BETWEEN ",valueTime[1]," AND ",valueTime[2],sep=''))
 	}else if(kindTime == 'year'){
@@ -161,9 +160,9 @@ generate.all.query <- function(kindContext, kindFlow, kindTime, valueTime, globa
 	union
 }
 
-generate.query <- function(kindContext, kindFlow, kindTime='all', valueTime=NULL, global=TRUE){
+generate.query <- function(kindContext, kindFlow, kindTime='all', valueTime=NULL, global=TRUE,filter=c()){
 	global.select <- "SELECT row_number() OVER () as id, oname, oy, ox, dname, dy, dx, count(*) trips"
-	global.from <- paste("FROM (", generate.all.query(kindContext, kindFlow, kindTime, valueTime, global),") flow",sep='')
+	global.from <- paste("FROM (", generate.all.query(kindContext, kindFlow, kindTime, valueTime, global,filter=filter),") flow",sep='')
 	global.group <- "GROUP BY oy, ox, oname, dx, dy, dname"
 	global.order <- "ORDER BY oname, dname"
 	paste(
@@ -174,19 +173,3 @@ generate.query <- function(kindContext, kindFlow, kindTime='all', valueTime=NULL
 		sep=' '
 	)
 }
-
-# print(generate.query('continent','fff'))
-# print(generate.query('continent','fnf'))
-# print(generate.query('continent','fft'))
-# print(generate.query('continent','all'))
-# print(generate.query('country','fft'))
-# print(generate.query('country','all'))
-# print(generate.query('city','fnf'))
-# print(generate.query('state','fnf'))
-# print(generate.query('region','fnf'))
-# print(generate.query('region','fnf'))
-# print(generate.query('region','fnf', 'range', c(1950,2013)))
-# print(generate.query('region','fnf', 'year', 2013))
-# print(generate.specific.from('continent', 'source', TRUE, FALSE))
-# print(generate.specific.from('continent', 'source', TRUE, TRUE))
-# print(generate.specific.where('continent', 'source', TRUE, TRUE))

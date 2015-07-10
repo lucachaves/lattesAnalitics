@@ -1,8 +1,6 @@
 library(circlize)
 library(gridExtra)
 library(ggplot2)
-library(RPostgreSQL)
-source('generateQuery.r')
 
 generate.grid.col <- function(kindContext){
 	grid.col = NULL

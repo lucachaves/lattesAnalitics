@@ -191,7 +191,7 @@ end
 @latitude_state["piaui"] = {latitude: -8.233333, longitude: -43.1, region: "nordeste", acronym: 'PI'}
 @latitude_state["federal district"] = {latitude: -15.795, longitude: -47.757778, region: "centro-oeste", acronym: 'DF'}
 @latitude_state["goias"] = {latitude: -15.933333, longitude: -50.133333, region: "centro-oeste", acronym: 'GO'}
-@latitude_state["mato grosso"] = {latitude: -15.566667, longitude: -56.066667, region: "centro-oeste", acronym: 'MG'}
+@latitude_state["mato grosso"] = {latitude: -15.566667, longitude: -56.066667, region: "centro-oeste", acronym: 'MT'}
 @latitude_state["mato grosso do sul"] = {latitude: -20.442778, longitude: -54.645833, region: "centro-oeste", acronym: 'MS'}
 @latitude_state["espirito santo"] = {latitude: -20.318889, longitude: -40.337778, region: "sudeste", acronym: 'ES'}
 @latitude_state["minas gerais"] = {latitude: -19.816667, longitude: -43.95, region: "sudeste", acronym: 'MG'}
