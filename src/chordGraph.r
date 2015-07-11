@@ -2,6 +2,42 @@ library(circlize)
 library(gridExtra)
 library(ggplot2)
 
+generate.chordGraph <- function(imageFile, mat, kindContext){
+	grid.col <- generate.grid.col(kindContext)
+	png(imageFile, 1000, 1000, pointsize = 12)
+  circos.par(start.degree = 90)
+
+  chordDiagram(
+		mat, 
+		grid.col = grid.col,
+		annotationTrack = "grid", 
+		preAllocateTracks = list(track.height = 0.3)
+	)
+
+	circos.trackPlotRegion(
+		track.index = 1, 
+		panel.fun = function(x, y) {
+			xlim = get.cell.meta.data("xlim")
+			ylim = get.cell.meta.data("ylim")
+			sector.name = get.cell.meta.data("sector.index")
+			
+			circos.text(
+				mean(xlim), 
+				ylim[1], 
+				sector.name, 
+				facing = "clockwise",
+				niceFacing = TRUE, 
+				adj = c(0, 0.5),
+				cex = 1.5
+			)
+		}, 
+		bg.border = NA
+	)
+
+	circos.clear()
+	dev.off()
+}
+
 generate.grid.col <- function(kindContext){
 	grid.col = NULL
 	if(kindContext == "region"){
@@ -73,58 +109,4 @@ generate.grid.col <- function(kindContext){
 		grid.col["venezuela"] = "#AAAAFF"
 	}
 	grid.col
-}
-
-generate.chord <- function(imageFile, mat, kindContext){
-	grid.col <- generate.grid.col(kindContext)
-	png(imageFile, 1000, 1000, pointsize = 12)
-  circos.par(start.degree = 90)
-
-  chordDiagram(
-		mat, 
-		grid.col = grid.col,
-		annotationTrack = "grid", 
-		preAllocateTracks = list(track.height = 0.3)
-	)
-
-	circos.trackPlotRegion(
-		track.index = 1, 
-		panel.fun = function(x, y) {
-			xlim = get.cell.meta.data("xlim")
-			ylim = get.cell.meta.data("ylim")
-			sector.name = get.cell.meta.data("sector.index")
-			
-			circos.text(
-				mean(xlim), 
-				ylim[1], 
-				sector.name, 
-				facing = "clockwise",
-				niceFacing = TRUE, 
-				adj = c(0, 0.5),
-				cex = 1.5
-			)
-		}, 
-		bg.border = NA
-	)
-
-	circos.clear()
-
-	dev.off()
-}
-
-convert.result.tomatrix <- function(flows){
-	names <- union(flows$oname,flows$dname)
-	mat <- matrix(0, nrow = length(names), ncol = length(names))
-	rownames(mat) = names
-	colnames(mat) = names
-	for(i in 1:nrow(flows)){
-		mat[flows[i,]$oname, flows[i,]$dname] = flows[i,]$trips
-	}
-	mat
-}
-
-generate.mfc <- function(imageFile, flows, kindContext){
-	mat <- convert.result.tomatrix(flows)
-	imageFile <- paste('./image/mfc/',imageFile,sep='')
-	generate.chord(imageFile, mat, kindContext)
 }

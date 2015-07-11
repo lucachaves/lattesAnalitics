@@ -5,7 +5,7 @@ library(maptools)
 library(geosphere)
 library(grid)
 
-draw.map <- function(kindContext, ylim=c(0,85)) {
+draw.map <- function(kindContext, ylim=c(-90,90)) {
 
   shapeFile <- if(kindContext == 'region'){
     'data/map/brasil_region/br.shp'
@@ -25,6 +25,7 @@ draw.map <- function(kindContext, ylim=c(0,85)) {
 
   map.view <- if(kindContext == 'region' | kindContext == 'state' | kindContext == 'continent'){
     fortify(readShapeSpatial(shapeFile), region = field)
+    # fortify(readShapeSpatial(paste('~/Documents/code/github/lucachaves/lattesAnalitics/src/',shapeFile,sep='')), region = field)
   }else{
     map_data("world")
   }
@@ -45,8 +46,9 @@ draw.map <- function(kindContext, ylim=c(0,85)) {
       axis.text.y = element_blank(),
       plot.title = element_text(size = rel(3))
     )
+
   gg
- }
+}
 
 bezier.curve <- function(p1, p2, p3) {
   n <- seq(0,1,length.out=50)
@@ -102,13 +104,11 @@ bezier.uv.merc.arc <- function(p1, p2) {
   arc
 }
 
-draw.map.flow <- function(kindContext, file_map, flows, points, texts, title=''){
-  width <- if(kindContext == 'region' | kindContext == 'state'){1000}else{1400}
-  height <- if(kindContext == 'region' | kindContext == 'state'){1000}else{750}
 
-  png(filename = file_map, width = width, height = height)
+generate.flowmapping <- function(flows, kindContext, theme='white', scale='normal', points=FALSE ,textvalue=FALSE, title=''){
+  draw.map.theme <- theme
   
-  gg <- draw.map(kindContext, c(-90,90))
+  gg <- draw.map(kindContext)
 
   for (i in 1:length(flows$trips)) {  
     arc <- bezier.uv.merc.arc(
@@ -129,82 +129,19 @@ draw.map.flow <- function(kindContext, file_map, flows, points, texts, title='')
     df <- data.frame(latitude=c(flows$oy,flows$dy),longitude=c(flows$ox,flows$dx))
     df <- df[!duplicated(df), ]
     # TODO flows$trips size or alfa
-    gg <- gg + geom_point(data=df,size=1,aes(x=longitude,y=latitude, group=NULL))
-
-    if(title != ''){
-      gg <- gg + ggtitle(paste("Flow",title, sep=""))
-    }  
+    gg <- gg + geom_point(data=df,size=1,aes(x=longitude,y=latitude, group=NULL))   
   }
 
-  if(texts == TRUE){
-    # TODO geom_text(aes(label=ifelse(PTS>24,as.character(Name),'')),hjust=0,just=0)
+  if(title != ''){
+    gg <- gg + ggtitle(paste("Flow",title, sep=""))
   }
 
-  print(gg)
-  dev.off()
-}
-
-generate.gm <- function(imageFile, flows, kindFlow, kindContext, kindTime, theme='white', scale='normal', points=FALSE ,texts=FALSE){
-
-  draw.map.theme <- theme
-
-  if(scale == 'normal'){
-    splitSize <- 0
-    if(kindContext == 'city' & kindFlow == 'all'){
-      splitSize <- 1000
-    }else if(kindContext == 'city'){
-      splitSize <- 50
-    }else if(kindContext == 'state' & kindFlow == 'fnf' & kindTime == 'all'){
-      splitSize <- 5000
-    }else if(kindContext == 'state' & kindFlow == 'fff' & kindTime == 'all'){
-      splitSize <- 5000
-    }else if(kindContext == 'state' & kindFlow == 'fft'){
-      splitSize <- 5000
-    }else if(kindContext == 'state' & kindFlow == 'all'){
-      splitSize <- 10000
-    }else if(kindContext == 'region' & kindTime == 'rangeYear'){
-      splitSize <- 500
-    }else if(kindContext == 'region'){
-      splitSize <- 1500
-    }else if(kindContext == 'state' & kindFlow == 'fnf' & kindTime == 'all'){
-      splitSize <- 500
-    }else if(kindContext == 'state' & kindFlow == 'fff' & kindTime == 'all'){
-      splitSize <- 500
-    }else if(kindContext == 'state' & kindFlow == 'fft'){
-      splitSize <- 500
-    }else if(kindContext == 'state' & kindFlow == 'all'){
-      splitSize <- 1000
-    }else if(kindContext == 'state'){
-      splitSize <- 50
-    }else if(kindContext == 'country' & kindFlow != 'fnf' & kindTime == 'all'){
-      splitSize <- 2000
-    }else if(kindContext == 'country' & kindFlow == 'fnf' & kindTime == 'all'){
-      splitSize <- 500
-    }else if(kindContext == 'country'){
-      splitSize <- 50
-    }else if(kindContext == 'continent' & kindFlow != 'fnf' & kindTime == 'all'){
-      splitSize <- 2000
-    }else if(kindContext == 'continent' & kindFlow != 'fnf'){
-      splitSize <- 200
-    }else if(kindContext == 'continent' & kindFlow == 'fnf' & kindTime == 'all'){
-      splitSize <- 500
-    }else if(kindContext == 'continent' & kindFlow == 'fnf'){
-      splitSize <- 30
-    }else if(kindContext == 'continent'){
-      splitSize <- 30
-    }
-    flows$trips <- flows$trips/splitSize # TODO maxvalue
-  }else if(scale == 'log'){
-    flows$trips <- log(flows$trips)
-  }else if(scale == 'log10'){
-    flows$trips <- log10(flows$trips)
-  }else if(scale == 'equal1'){
-    flows$trips <- rep(0.9,length(flows$trips))
-  }else if(scale == 'equal0.1'){
-    flows$trips <- rep(0,length(flows$trips))
+  if(textvalue == TRUE){
+    df <- data.frame(name=c(flows$oname,flows$dname),latitude=c(flows$oy,flows$dy),longitude=c(flows$ox,flows$dx))
+    df <- df[!duplicated(df), ]
+    # TODO label=ifelse(PTS>24,as.character(Name),'')
+    gg <- gg + geom_text(data=df,aes(label=name,x=longitude,y=latitude, group=NULL),hjust=0,just=0)
   }
-  
-  imageFile <- paste('./image/gm/',scale,'-',imageFile,sep='')
-  draw.map.flow(kindContext, imageFile, flows, points, texts)
 
+  gg
 }

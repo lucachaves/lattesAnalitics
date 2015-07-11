@@ -1,6 +1,6 @@
 library(treemap)
 
-generate.graphic.tm <- function(imageFile, flows){
+generate.treemap <- function(imageFile, flows){
 	df <- data.frame(index=flows$place,vSize=flows$degree,vColor=flows$degree)
 	png(filename = imageFile)
 	treemap(

@@ -5,254 +5,325 @@ source('chordGraph.r')
 source('treeMap.r')
 source('generateQuery.r')
 
-db.get.connection <- function(drv){
-	dbConnect(drv, dbname="mobilitygraph",host="192.168.56.101",port=5432,user="postgres",password="postgres")
+convert.scale.value <- function(data, scale, kindGraphic){
+  if(scale == 'log'){
+    data <- log(data)
+  }
+  if(scale == 'log10'){
+    data <- log10(data)
+  }
+  if(kindGraphic == 'mc'){
+  	if(scale == 'normal'){
+	    data <- data
+	  }	
+  }
+  if(kindGraphic == 'gm'){
+	  if(scale == 'equal1'){
+	    data <- rep(0.9,length(data))
+	  }
+	  if(scale == 'equal0.1'){
+	    data <- rep(0,length(data))
+	  }
+	  if(scale == 'normal'){
+	    splitSize <- 0
+	    if(kindContext == 'city' & kindFlow == 'all'){
+	      splitSize <- 1000
+	    }else if(kindContext == 'city'){
+	      splitSize <- 50
+	    }else if(kindContext == 'state' & kindFlow == 'fnf' & kindTime == 'all'){
+	      splitSize <- 5000
+	    }else if(kindContext == 'state' & kindFlow == 'fff' & kindTime == 'all'){
+	      splitSize <- 5000
+	    }else if(kindContext == 'state' & kindFlow == 'fft'){
+	      splitSize <- 5000
+	    }else if(kindContext == 'state' & kindFlow == 'all'){
+	      splitSize <- 10000
+	    }else if(kindContext == 'region' & kindTime == 'rangeYear'){
+	      splitSize <- 500
+	    }else if(kindContext == 'region'){
+	      splitSize <- 1500
+	    }else if(kindContext == 'state' & kindFlow == 'fnf' & kindTime == 'all'){
+	      splitSize <- 500
+	    }else if(kindContext == 'state' & kindFlow == 'fff' & kindTime == 'all'){
+	      splitSize <- 500
+	    }else if(kindContext == 'state' & kindFlow == 'fft'){
+	      splitSize <- 500
+	    }else if(kindContext == 'state' & kindFlow == 'all'){
+	      splitSize <- 1000
+	    }else if(kindContext == 'state'){
+	      splitSize <- 50
+	    }else if(kindContext == 'country' & kindFlow != 'fnf' & kindTime == 'all'){
+	      splitSize <- 2000
+	    }else if(kindContext == 'country' & kindFlow == 'fnf' & kindTime == 'all'){
+	      splitSize <- 500
+	    }else if(kindContext == 'country'){
+	      splitSize <- 50
+	    }else if(kindContext == 'continent' & kindFlow != 'fnf' & kindTime == 'all'){
+	      splitSize <- 2000
+	    }else if(kindContext == 'continent' & kindFlow != 'fnf'){
+	      splitSize <- 200
+	    }else if(kindContext == 'continent' & kindFlow == 'fnf' & kindTime == 'all'){
+	      splitSize <- 500
+	    }else if(kindContext == 'continent' & kindFlow == 'fnf'){
+	      splitSize <- 30
+	    }else if(kindContext == 'continent'){
+	      splitSize <- 30
+	    }
+	    data <- data/splitSize # TODO maxvalue
+	  }
+	}
+  data
 }
 
-sql.inst.inst.nacional <- "SELECT edge.id FROM PUBLIC.edge edge, PUBLIC.place instituitionSource, PUBLIC.place citySource, PUBLIC.place stateSource, PUBLIC.place regionSource, PUBLIC.place countrySource, PUBLIC.place instituitionTarget, PUBLIC.place cityTarget, PUBLIC.place stateTarget, PUBLIC.place regionTarget, PUBLIC.place countryTarget WHERE edge.source = instituitionSource.id AND instituitionSource.kind = 'instituition' AND instituitionSource.belong_to = citySource.id AND citySource.kind = 'city' AND citySource.belong_to = stateSource.id AND stateSource.kind = 'state' AND stateSource.belong_to = regionSource.id AND regionSource.kind = 'region' AND regionSource.belong_to = countrySource.id AND countrySource.kind = 'country' AND countrySource.id = 131 AND edge.target = instituitionTarget.id AND instituitionTarget.kind = 'instituition' AND instituitionTarget.belong_to = cityTarget.id AND cityTarget.kind = 'city' AND cityTarget.belong_to = stateTarget.id AND stateTarget.kind = 'state' AND stateTarget.belong_to = regionTarget.id AND regionTarget.kind = 'region' AND regionTarget.belong_to = countryTarget.id AND countryTarget.kind = 'country' AND countryTarget.id = 131"
-sql.city.inst.nacional <- "SELECT edge.id FROM PUBLIC.edge edge, PUBLIC.place citySource, PUBLIC.place stateSource, PUBLIC.place regionSource, PUBLIC.place countrySource, PUBLIC.place instituitionTarget, PUBLIC.place cityTarget, PUBLIC.place stateTarget, PUBLIC.place regionTarget, PUBLIC.place countryTarget WHERE edge.source = citySource.id AND citySource.kind = 'city' AND citySource.belong_to = stateSource.id AND stateSource.kind = 'state' AND stateSource.belong_to = regionSource.id AND regionSource.kind = 'region' AND regionSource.belong_to = countrySource.id AND countrySource.kind = 'country' AND countrySource.id = 131 AND edge.target = instituitionTarget.id AND instituitionTarget.kind = 'instituition' AND instituitionTarget.belong_to = cityTarget.id AND cityTarget.kind = 'city' AND cityTarget.belong_to = stateTarget.id AND stateTarget.kind = 'state' AND stateTarget.belong_to = regionTarget.id AND regionTarget.kind = 'region' AND regionTarget.belong_to = countryTarget.id AND countryTarget.kind = 'country' AND countryTarget.id = 131"
-sql.top10.degree.inst <- "SELECT id FROM (SELECT edge.target id FROM edge, place WHERE edge.target=place.id AND place.kind='instituition' UNION ALL SELECT edge.source id FROM edge, place WHERE edge.source=place.id AND place.kind='instituition') ids GROUP BY id ORDER BY count(id) DESC LIMIT 10"
+convert.result.todf.timeline <- function(fname, tname, value, range){
+  namescol <- range[1]:range[2]
+  namesrow <- unique(tname)
+  mat <- matrix(0, nrow = length(namesrow), ncol = length(namescol))
+  rownames(mat) <- namesrow
+  colnames(mat) <- namescol
+  for(i in 1:length(fname)){
+    mat[tname[i],toString(fname[i])] = value[i]
+  }
+  from <- c()
+  to <- c()
+  trips <- c()
+  for(i in 1:length(namesrow)){
+    for(j in 1:length(namescol)){
+      to <- c(to, namesrow[i])
+      from <- c(from, namescol[j])
+      trips <- c(trips, mat[i,j])
+    }
+  }
+  df <- data.frame(from=from, to=to,valor=trips)
+  df
+}
 
-generate.graphic.each <- function(kindGraphic, kindFlow, kindContext, kindTime='all', valueTime=NULL, kindFilter=c(), kindScale=c('normal')){
+convert.result.todf.square <- function(fname, tname, value, orderrow){
+  names <- if(orderrow == FALSE)
+  	union(fname,tname)
+  else{
+  	orderrow
+  }
+  mat <- matrix(0, nrow = length(names), ncol = length(names))
+  rownames(mat) <- names
+  colnames(mat) <- names
+  for(i in 1:length(fname)){
+    mat[fname[i], tname[i]] = value[i]
+  }
+  from <- c()
+  to <- c()
+  trips <- c()
+  for(i in 1:nrow(mat)){
+    for(j in 1:ncol(mat)){
+      from <- c(from, names[i])
+      to <- c(to, names[j])
+      trips <- c(trips, mat[i,j])
+    }
+  }
+  df <- data.frame(from=from, to=to,valor=trips)
+  df
+}
+
+convert.result.tomatrix <- function(flows){
+	names <- union(flows$oname,flows$dname)
+	mat <- matrix(0, nrow = length(names), ncol = length(names))
+	rownames(mat) = names
+	colnames(mat) = names
+	for(i in 1:nrow(flows)){
+		mat[flows[i,]$oname, flows[i,]$dname] = flows[i,]$trips
+	}
+	mat
+}
+
+generate.graphic.each <- function(kindGraphic, kindFlow, kindContext, kindTime='all', valueTime=NULL, kindFilter=c(), kindScale=c('normal'), textvalue=FALSE, mapview=FALSE){
   print(paste(kindFlow, kindContext, kindTime,sep='-'))
 
-  drv <- dbDriver("PostgreSQL")
-  con <- db.get.connection(drv)
-
   valueFilter <- c()
-  print(length(kindFilter))
   if(length(kindFilter) == 0){
   	kindFilter <- ''
   }else{
-	  if(is.element('doutorado',kindFilter)){
-	  	valueFilter <- c(valueFilter, "edge.kind='doutorado'")
-	  }
-	  if(is.element('to-doutorado-USP',kindFilter)){
-	  	valueFilter <- c(valueFilter, "edge.kind='doutorado' AND instituitionTarget.id = 179")
-	  }
-	  if(is.element('from-doutorado-USP',kindFilter)){
-	  	valueFilter <- c(valueFilter, "edge.kind='doutorado' AND instituitionSource.id = 179")
-	  }
-	  if(is.element('to-doutorado-UFPE',kindFilter)){
-	  	valueFilter <- c(valueFilter, "edge.kind='doutorado' AND instituitionTarget.id = 588")
-	  }
-	  if(is.element('from-doutorado-UFPE',kindFilter)){
-	  	valueFilter <- c(valueFilter, "edge.kind='doutorado' AND instituitionSource.id = 588")
-	  }
-	  if(is.element('excludeAllBrazilFlows',kindFilter)){
-	  	valueFilter <- c(valueFilter, "(countrySource.id != 131 AND countryTarget.id != 131)")
-	  }
-	  if(is.element('excludeFlowsInBrazil',kindFilter)){
-	  	valueFilter <- c(valueFilter, paste("edge.id NOT IN (",sql.inst.inst.nacional,") AND edge.id NOT IN (",sql.city.inst.nacional,")",sep=''))
-	  }
-	  if(is.element('onlyFlowsInBrazil',kindFilter)){
-	  	valueFilter <- c(valueFilter, paste("edge.id IN (",sql.inst.inst.nacional," UNION",sql.city.inst.nacional,")",sep=''))
-	  }
-	  if(is.element('topDegreeInst',kindFilter)){
-	  	valueFilter <- c(valueFilter, paste("instituitionSource.id IN (",sql.top10.degree.inst,") AND instituitionTarget.id IN (",sql.top10.degree.inst,")",sep=''))
-	  }
-	  for(filter in kindFilter){
-	  	if(unlist(strsplit(filter,'-'))[1] == 'specificPerson'){
-		  	valueFilter <- c(valueFilter, paste("edge.id16='",unlist(strsplit(filter,'-'))[2],"'",sep=''))
-		  }
-	  	# TODO FILE http://plsql1.cnpq.br/divulg/RESULTADO_PQ_102003.prc_comp_cmt_links?V_COD_DEMANDA=200310&V_TPO_RESULT=CURSO&V_COD_AREA_CONHEC=10300007&V_COD_CMT_ASSESSOR=CC
-	  	if(unlist(strsplit(filter,'-'))[1] == 'groupPeople'){
-	  		groupFile <- paste('./data/',unlist(strsplit(filter,'-'))[2],'.csv',sep= '')
-		  	group <- read.table(groupFile, header=TRUE, quote="\'")
-		  	groupIds <-  paste(group$id16,collapse=',')
-		  	valueFilter <- c(valueFilter, paste("edge.id16 IN (",groupIds,")",sep=''))
-		  }
-	  }
+	  valueFilter <- query.filter(kindFilter)
   	kindFilter <- paste('-',paste(kindFilter,sep='-'),sep='')
   }
 
-  if(kindTime == "all" | kindTime == "rangeAll"){
-	  
-	  imageFile <- if(kindTime == "all"){
+	collection <- if(kindTime=="rangeYear"){
+		valueTime[1]:valueTime[2]
+	}else if(kindTime == "setYear"){
+		valueTime
+	}else if(kindTime == "all" | kindTime == "rangeAll"){
+		'range'
+	}
+
+	for (year in collection) {
+	  print(paste("year ",year,sep=""))
+
+		imageFile <- if(kindTime == "rangeYear" | kindTime == "setYear"){
+			paste(kindContext,'-',kindFlow, kindFilter,'-',year,'.png',sep='')
+		}else if(kindTime == "all"){
 	  	paste(kindContext,'-',kindFlow, kindFilter,'-',kindTime,'.png',sep='')
   	}else if(kindTime == "rangeAll"){
 	  	paste(kindContext,'-',kindFlow, kindFilter,'-',paste(valueTime[1],'-',valueTime[2],sep=''),'.png',sep='')
   	}
-  	sql <- if(kindTime == "all"){
+
+	  sql <- if(kindTime == "rangeYear" | kindTime == "setYear"){
+	  	generate.query(kindContext, kindFlow, 'year', year, filter=valueFilter)
+	  }else if(kindTime == "all"){
   		generate.query(kindContext, kindFlow, filter=valueFilter)
   	}else if(kindTime == "rangeAll"){
   		generate.query(kindContext, kindFlow, 'range', valueTime, filter=valueFilter)
   	}
-  	cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",sql,"\n",sep=""))
 
-  	rs <- dbSendQuery(con,sql)
-  	flows <- fetch(rs,n=-1)
+	  cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",sql,"\n",sep=""))
+	  flows <- db.query(sql)
+	  
+	  if(length(flows)>0){
+    	cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",flows,"\n",sep=""))
 
-  	if(length(flows)>0){
-      cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",flows,"\n",sep=""))
-	  	if(is.element('mc',kindGraphic)){
-			  for(scale in kindScale){
-			  	generate.mc.square(imageFile, flows, kindContext, scale=scale)
-			  }
+    	if(is.element('mc',kindGraphic)){
+    		for(scale in kindScale){
+    			if(textvalue != FALSE){
+    				imageFile <- paste('withnum',imageFile,sep='-')
+  				}
+    			imageFile <- paste('./image/mc/',scale,'-',imageFile,sep='')
+    			
+    			size <- if(kindContext == "region"){
+				    c(500,450)
+				  }else if(kindContext == "continent"){
+				    c(600, 500)
+				  }else{
+				    c(1000,1000)
+				  }
+
+				  orderrow <- if(kindTime == 'setYear'){
+				  	sql <- generate.query(kindContext, kindFlow, filter=query.filter(c('rangeYear'),valueTime))
+	  				result <- db.query(sql)
+				  	union(result$oname, result$dname)
+				  }else{
+				  	FALSE
+				  }
+
+    			flows$trips <- convert.scale.value(flows$trips, scale, 'mc')
+				  df <- convert.result.todf.square(flows$oname, flows$dname, flows$trips, orderrow)				    
+    			
+    			png(filename = imageFile, width = size[1], height = size[2])
+
+				  gg <- generate.heatmap('square', df, scale=scale,textvalue=textvalue, orderrow=orderrow)
+				  
+				  print(gg)
+  				dev.off()
+				}
     	}
+
     	if(is.element('mfc',kindGraphic)){
-		  	generate.mfc(imageFile, flows, kindContext)
+    		mat <- convert.result.tomatrix(flows)
+				imageFile <- paste('./image/mfc/',imageFile,sep='')
+
+		  	generate.chordGraph(imageFile, flows, kindContext)
 		  }
+
 		  if(is.element('gm',kindGraphic)){
 		  	for(scale in kindScale){
-		  		generate.gm(imageFile, flows, kindFlow, kindContext, kindTime, scale=scale, points=TRUE ,texts=TRUE)
+		  		flows$trips <- convert.scale.value(flows$trips, scale, 'gm')
+		  		imageFile <- paste('./image/gm/',scale,'-',imageFile,sep='')
+				  if(mapview != FALSE){
+				  	kindContext <- mapview
+				  }
+		  		width <- if(kindContext == 'region' | kindContext == 'state'){1000}else{1400}
+				  height <- if(kindContext == 'region' | kindContext == 'state'){1000}else{750}
+				  png(filename = imageFile, width = width, height = height)
+
+		  		gg <- generate.flowmapping(flows, kindContext, scale=scale, points=TRUE ,textvalue=textvalue)
+
+		  		print(gg)
+  				dev.off()
 		  	}
 		  }
-	 	}else{
+		  cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",imageFile,"\n",sep=""))
+		}else{
       cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\nempty flows\n",sep=""))
-    }	 	
-
-	}else if(kindTime == "rangeYear"){
-
-		for (year in valueTime[1]:valueTime[2]) {
-		  print(paste("year ",year,sep=""))
-
-			imageFile <- paste(kindContext,'-',kindFlow, kindFilter,'-',year,'.png',sep='')
-		  
-		  sql <- generate.query(kindContext, kindFlow, 'year', year, filter=valueFilter)
-		  cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",sql,"\n",sep=""))
-		  rs <- dbSendQuery(con,sql)
-		  flows <- fetch(rs,n=-1)
-		  
-		  if(length(flows)>0){
-      	cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",flows,"\n",sep=""))
-      	if(is.element('mc',kindGraphic)){
-      		for(scale in kindScale){
-					  generate.mc.square(imageFile, flows, kindContext, scale=scale)
-					}
-      	}
-      	if(is.element('mfc',kindGraphic)){
-			  	generate.mfc(imageFile, flows, kindContext)
-			  }
-			  if(is.element('gm',kindGraphic)){
-			  	for(scale in kindScale){
-			  		generate.gm(imageFile, flows, kindFlow, kindContext, kindTime, scale=scale, points=TRUE ,texts=TRUE)
-			  	}
-			  }
-			}else{
-	      cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\nempty flows\n",sep=""))
-	    }
-
-		}
+    }
 	}
-
-	dbDisconnect(con)
-  dbUnloadDriver(drv)
 }
 
 # kindGraphic c('mc', 'gm', 'mfc')
-# kindFlow 		c('fnf','fff','fft','all')
+# kindFlow 		c('fnf','fff','fft','ffft','all')
 # kindContext c('city','state','region','country','continent')
-# kindTime <- c('rangeAll-1973-2013','rangeYear-1963-2013','all', 1973, 1983, 1993, 2003, 2013)
-generate.graphic <- function(kindGraphic, kindFlow, kindContext, kindTime='', kindFilter=c(),scale=c('normal')){
-	sink("outfile.txt")
-	print("BEGIN")
-
+# kindTime <- c('all', 2013, 'all-years-1973-2013','each-years-1963-2013','set-year-1973-1983-1993-2003-2013')
+generate.graphic <- function(kindGraphic, kindFlow, kindContext, kindTime='', kindFilter=c(), scale=c('normal'), textvalue=FALSE, mapview=FALSE){
 	if(kindTime == ''){
-		kindTime <- c('all', 1973, 1983, 1993, 2003, 2013)
+		kindTime <- c('all', 'set-year-1973-1983-1993-2003-2013')
 	}
 	 
 	for(flow in kindFlow){
 		for(context in kindContext){
 				print(paste(flow, context, sep='-'))
 				if(flow == 'fnf' | flow == 'fff'){
-					if(is.element('rangeAll-1973-2013', kindTime)){
-						generate.graphic.each(kindGraphic, flow, context, kindTime="rangeAll", valueTime=c(1973,2013), kindFilter=kindFilter, kindScale=scale)
+					if(is.element('all-years-1973-2013', kindTime)){
+						generate.graphic.each(kindGraphic, flow, context, kindTime="rangeAll", valueTime=c(1973,2013), kindFilter=kindFilter, kindScale=scale, textvalue=textvalue, mapview=mapview)
 					}
-					if(is.element('rangeYear-1963-2013', kindTime)){
-						generate.graphic.each(kindGraphic, flow, context, kindTime="rangeYear", valueTime=c(1963,2013), kindFilter=kindFilter, kindScale=scale)
+					if(is.element('each-years-1963-2013', kindTime)){
+						generate.graphic.each(kindGraphic, flow, context, kindTime="rangeYear", valueTime=c(1963,2013), kindFilter=kindFilter, kindScale=scale, textvalue=textvalue, mapview=mapview)
+					}
+					if(is.element('set-year-1973-1983-1993-2003-2013',kindTime)){
+						generate.graphic.each(kindGraphic, flow, context, kindTime="setYear", valueTime=c(1973, 1983, 1993, 2003, 2013), kindFilter=kindFilter, kindScale=scale, textvalue=textvalue, mapview=mapview)
 					}
 					if(is.element(1973,kindTime)){
-						generate.graphic.each(kindGraphic, flow, context, kindTime="rangeYear", valueTime=c(1973,1973), kindFilter=kindFilter, kindScale=scale)
-					}
-					if(is.element(1983,kindTime)){
-						generate.graphic.each(kindGraphic, flow, context, kindTime="rangeYear", valueTime=c(1983,1983), kindFilter=kindFilter, kindScale=scale)
-					}
-					if(is.element(1993,kindTime)){
-						generate.graphic.each(kindGraphic, flow, context, kindTime="rangeYear", valueTime=c(1993,1993), kindFilter=kindFilter, kindScale=scale)
-					}
-					if(is.element(2003,kindTime)){
-						generate.graphic.each(kindGraphic, flow, context, kindTime="rangeYear", valueTime=c(2003,2003), kindFilter=kindFilter, kindScale=scale)
-					}
-					if(is.element(2013,kindTime)){
-						generate.graphic.each(kindGraphic, flow, context, kindTime="rangeYear", valueTime=c(2013,2013), kindFilter=kindFilter, kindScale=scale)
+						generate.graphic.each(kindGraphic, flow, context, kindTime="rangeYear", valueTime=c(1973,1973), kindFilter=kindFilter, kindScale=scale, textvalue=textvalue, mapview=mapview)
 					}
 				}
 				if(is.element('all',kindTime)){
-					generate.graphic.each(kindGraphic, flow, context, kindFilter=kindFilter, kindScale=scale)
+					generate.graphic.each(kindGraphic, flow, context, kindFilter=kindFilter, kindScale=scale, textvalue=textvalue, mapview=mapview)
 				}
 		}
 	}
-
-	print("END")
-	sink()
 }
 
+# flowMoment (target,source,all)
 generate.graphic.timeline <- function(kindContext, kindMoment, flowMoment='target', scale='normal', range=c(1950,2013), limit=10){
+	sql.range <- generate.query(kindContext, kindFlow, kindQuery='name-eyear-target',kindMoment=kindMoment, flowMoment='target', scale='normal', range=c(1950,2013), limit=10)
 
-	drv <- dbDriver("PostgreSQL")
-	con <- db.get.connection(drv)
-
-	sql.ids <- ''
-	sql.names <- ''
-	sql.instituition.doutorado.target.names <- paste("SELECT place.acronym as name FROM public.edge, public.place WHERE edge.target = place.id AND edge.kind = 'doutorado' AND place.kind = 'instituition' GROUP BY place.id ORDER BY count(place) DESC LIMIT",limit)
-	sql.instituition.doutorado.target.ids <- paste("SELECT place.id FROM public.edge, public.place WHERE edge.target = place.id AND edge.kind = 'doutorado' AND place.kind = 'instituition' GROUP BY place.id ORDER BY count(place) DESC LIMIT",limit)
-	# sql.city.doutorado.target.names <- paste("SELECT place.acronym as name FROM public.edge, public.place WHERE edge.target = place.id AND edge.kind = 'doutorado' AND place.kind = 'instituition' GROUP BY place.id ORDER BY count(place) DESC LIMIT",limit)
-	# sql.city.doutorado.target.ides <- paste("SELECT place.id FROM public.edge, public.place WHERE edge.target = place.id AND edge.kind = 'doutorado' AND place.kind = 'instituition' GROUP BY place.id ORDER BY count(place) DESC LIMIT",limit)
-
-	if(kindContext == 'instituition' & kindMoment == 'doutorado' & flowMoment == 'target'){
-		sql.ids <- sql.instituition.doutorado.target.ids
-		sql.names <- sql.instituition.doutorado.target.names
-	}
-		
-	sql.range <- paste("SELECT place.acronym place, edge.end_year eyear, count(*) degree FROM public.edge, public.place WHERE edge.end_year BETWEEN ",range[1]," AND ", range[2]," AND edge.target = place.id AND place.id in (",sql.ids,") AND place.kind = 'instituition' AND edge.kind = 'doutorado' GROUP BY place, eyear ORDER BY place, eyear",sep='')
-
-	rs <- dbSendQuery(con, sql.names)
-	rn <- fetch(rs,n=-1)
-	rs <- dbSendQuery(con, sql.range)
-	flows <- fetch(rs,n=-1)
-
-	imageFile <- paste(limit,kindContext,kindMoment,paste(range,collapse='-'),scale,sep='-')
+	rn <- db.query(sql.names)
+	flows <- db.query(sql.range)
+	
+	imageFile <- paste(limit,scale,kindContext,kindMoment,paste(range,collapse='-'),sep='-')
 	imageFile <- paste('./image/tl/top',imageFile,'.png',sep='')
-	generate.mc.timeline(imageFile, flows, rev(rn$name), range, scale=scale)
-
-	dbDisconnect(con)
-	dbUnloadDriver(drv)
-
+	flows$degree <- convert.scale.value(flows$degree, scale, 'mc')
+	size <- c(1000,200)
+	df <- convert.result.todf.timeline(flows$eyear, flows$place, flows$degree, range)
+	png(filename = imageFile, width = size[1], height = size[2])
+	gg <- generate.heatmap('timeline', df, orderrow=rev(rn$name), range=range, scale=scale)
+	print(gg)
+	dev.off()
 }
 
-generate.graphic.treemap <- function(kindContext, kindMoment, flowMoment='target', range=c(1950,2013), limit=10){
-	drv <- dbDriver("PostgreSQL")
-	con <- db.get.connection(drv)
+# include (all,range)
+# range (c(x,y), all, year)
+# flowMoment (target,source,all)
+# kindMoment (last,first,work,doutorado,graduacao,...)
+# kindContext (instituition,city,...)
+generate.graphic.treemap <- function(kindContext, kindMoment, flowMoment='target', range=c(1950,2013), limit=10, include='range'){
+	
+	query <- sql.instituition.count.rank(flowMoment, kindMoment, range, limit)
+	cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",query,"\n",sep=""))
 
-	sql <- if(kindContext == 'instituition' & kindMoment == 'doutorado' & flowMoment == 'target'){
-	 paste("SELECT place.acronym place, count(*) degree FROM public.edge, public.place WHERE edge.end_year BETWEEN ",range[1]," AND ", range[2]," AND edge.target = place.id AND place.kind = 'instituition' GROUP BY place ORDER BY degree DESC LIMIT ",limit)
+	flows <- db.query(query)
+
+	if(include == 'all'){
+		flows.all <- db.query(sql.instituition.count.rank(flowMoment, kindMoment, range ,limit='none'))
+		flows[nrow(flows),]$place <- 'demais'
+		flows[nrow(flows),]$degree <- sum(flows.all$degree)-sum(flows$degree)
 	}
-	rs <- dbSendQuery(con,sql)
-	flows <- fetch(rs,n=-1)
 
 	imageFile <- paste(limit,kindContext,kindMoment,flowMoment,paste(range,collapse='-'),sep='-')
 	imageFile <- paste('./image/tm/rank',imageFile,'.png',sep='')
 
-	generate.graphic.tm(imageFile, flows)
-
-	dbDisconnect(con)
-	dbUnloadDriver(drv)
+	generate.treemap(imageFile, flows)
 }
 
 generate.graphic.line <- function(kindMoment, flowMoment='target', range=c(1970,2012)){
-	drv <- dbDriver("PostgreSQL")
-	con <- db.get.connection(drv)
-
-	sql.all <- paste("SELECT edge.end_year eyear, count(*) count FROM public.edge WHERE edge.kind = 'doutorado' AND edge.end_year BETWEEN ",range[1]," AND ", range[2]," GROUP BY eyear ORDER BY eyear",sep='')
-	sql.nacional <- paste("SELECT edge.end_year eyear, count(*) count FROM public.edge WHERE edge.kind = 'doutorado' AND edge.end_year BETWEEN ",range[1]," AND ", range[2]," AND edge.id IN (",sql.inst.inst.nacional," UNION ",sql.city.inst.nacional,") GROUP BY eyear ORDER BY eyear",sep='')
-
-	rs <- dbSendQuery(con,sql.all)
-	flows.all <- fetch(rs,n=-1)
-
-	rs <- dbSendQuery(con,sql.nacional)
-	flows.nacional <- fetch(rs,n=-1)
-
+	
+	flows.all <- db.query(sql.all)
+	flows.nacional <- db.query(sql.nacional)
 	people <- read.csv("data/populacao-ipeadata-1872-2012.csv")
 
 	diff <- range[2]-range[1]
@@ -284,27 +355,37 @@ generate.graphic.line <- function(kindMoment, flowMoment='target', range=c(1970,
 
 	print(gg)
 	dev.off()
-
-	dbDisconnect(con)
-	dbUnloadDriver(drv)
 }
+
+sink("outfile.txt")
+print("BEGIN")
 
 # generate.graphic(c('mc', 'gm', 'mfc'),c('fnf','fff','fft','all'),c('state','region','continent'))
 # generate.graphic(c('mc', 'gm'),c('fnf','fff','fft','all'),c('country'))
 # generate.graphic(c('mfc'),c('fff'),c('country'))
+# generate.graphic(c('mc'),c('fff'),c('state'),kindTime=c('all'),scale=c('normal'), textvalue=TRUE)
+# generate.graphic(c('mc'),c('fff'),c('state'),kindTime=c('set-year-1973-1983-1993-2003-2013'),scale=c('log'))
 # generate.graphic(c('mfc'),c('fnf','fff','fft','all'),c('country'))
 # generate.graphic(c('mfc'),c('fff'),c('country'),kindTime=c('all'), kindFilter=c('excludeAllBrazilFlows'))
 # generate.graphic(c('mfc'),c('fff'),c('country'),kindTime=c('all'), kindFilter=c('excludeFlowsInBrazil'))
 # generate.graphic(c('gm'),c('all'),c('city'),kindTime=c('all'), scale=c('equal0.1'))
-generate.graphic(c('gm'),c('ffft'),c('instituition'),kindTime=c('all'), kindFilter=c('topDegreeInst'), scale=c('equal0.1'))
+# generate.graphic(c('gm'),c('ffft'),c('instituition'),kindTime=c('all'), kindFilter=c('topDegreeInst'), scale=c('equal0.1'), mapview='state', textvalue=TRUE)
 # generate.graphic(c('gm'),c('all'),c('city'),kindTime=c('all'), kindFilter=c('specificPerson-1982919735990024'), scale=c('equal0.1')) # Alexandre
 # generate.graphic(c('gm'),c('all'),c('city'),kindTime=c('all'), kindFilter=c('groupPeople-pqComp'), scale=c('equal0.1'))
 # generate.graphic(c('mc', 'gm', 'mfc'),c('fff'),c('country'),kindFilter=c('doutorado'))
 # generate.graphic(c('gm'),c('fff'),c('instituition'),kindTime=c('all'),kindFilter=c('to-doutorado-USP','to-doutorado-UFPE','from-doutorado-USP','from-doutorado-UFPE'), scale=c('equal0.1'))
+
 # generate.graphic.timeline('instituition','doutorado')
 # generate.graphic.timeline('instituition','doutorado',scale='log')
+generate.graphic.timeline('city','doutorado',scale='log')
+
 # generate.graphic.treemap('instituition','doutorado')
-# generate.graphic.treemap('instituition','doutorado',limit=50)
+# generate.graphic.treemap('instituition','doutorado',flowMoment='source', limit=50)
+# generate.graphic.treemap('instituition','doutorado',flowMoment='all',limit=50)
+# generate.graphic.treemap('instituition','doutorado',flowMoment='target',limit=50,include='all')
+# generate.graphic.treemap('instituition','first',flowMoment='target',limit=50)
+# generate.graphic.treemap('instituition','last',flowMoment='source', limit=50)
+
 # generate.graphic.line('doutorado')
 # generate.graphic.line('doutorado-all-nacional')
 # generate.graphic.line('doutorado-all-pop-log')
@@ -314,45 +395,5 @@ generate.graphic(c('gm'),c('ffft'),c('instituition'),kindTime=c('all'), kindFilt
 # print(generate.query('region','fnf', 'year', 2013))
 # print(generate.specific.from('continent', 'source', TRUE, FALSE))
 # print(generate.specific.where('continent', 'source', TRUE, TRUE))
-
-####### TODO #######
-# rank de onde vamos no exterior na formacao de doutorado (gráfico de barra?!)
-# calcular as métricas de mobilidade: DD, ID
-# dump mobilitygraph
-# pegar código dos gráficos que já foram usados na dissertação
-# cap2: 3 gephi
-# hm-fff-state/continent (number)
-# tm-cidade
-# mfc-fff-state
-# 6 graphics
-# treemap: incluindo os demais
-# gerar arquivos para o gephi
-
-# calcular outras métricas de sna para comprar MMP: api gephi or igraph
-# pegar ids dePQs de computação e comparar seu DD com a média global
-# outros gráficos que estao no lattesGephi
-# concentrar o scale
-# filter: graduacao,doutorado...
-# graduacao: source,target, out/in
-# analisar a importancia do start_year
-# suprir todos os gráficos da dissertação
-# custom filter
-# validate generateQuery
-# siglas
-# custom title
-
-######## MC ########
-# same size comparator
-# colocar número
-
-######## GM ########
-# point
-# same color (point edge)
-# loop
-# splitSize
-# theme (white,black)
-# aresta afinando para o destino
-
-######## MFC ########
-# ordem
-# color: instituition?
+print("END")
+sink()
