@@ -10,6 +10,10 @@ SELECT city.id, city.name, city.kind, city.latitude, city.longitude
   FROM public.place city, public.place state
   WHERE city.belong_to = state.id AND state.kind = 'state' AND state.name = 'paraiba';
 
+-- select universidade
+SELECT id, name, acronym, kind, latitude, longitude, belong_to
+  FROM place where name = 'universidade federal de pernambuco';
+
 -- sql.top10.instituition.doutorado
 SELECT  
   place.acronym place,

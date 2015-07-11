@@ -5,7 +5,7 @@ library(maptools)
 library(geosphere)
 library(grid)
 
-draw.map <- function(kindContext, year, ylim=c(0,85)) {
+draw.map <- function(kindContext, ylim=c(0,85)) {
 
   shapeFile <- if(kindContext == 'region'){
     'data/map/brasil_region/br.shp'
@@ -29,14 +29,13 @@ draw.map <- function(kindContext, year, ylim=c(0,85)) {
     map_data("world")
   }
 
-  ggplot(map.view, aes(x=long, y=lat, group=group)) +
+  gg <- ggplot(map.view, aes(x=long, y=lat, group=group)) +
     # geom_polygon(size = 0.2, fill="#191919") + # fill = #FFFFFF, #CCCCCC, #F9F9F9
+    # coord_map("mercator", ylim=ylim, xlim=c(-180,180)) +
     geom_polygon(size = 0.2, fill="#FFFFFF") +
     geom_path(size=0.2, colour = "grey65") +
-    # coord_map("mercator", ylim=ylim, xlim=c(-180,180)) +
     theme(
-      panel.background = element_blank(), 
-      # panel.background = element_rect(fill = "#000000", colour = NA), 
+      panel.background = element_blank(), #element_rect(fill = "#000000", colour = NA)
       panel.grid.minor = element_blank(), 
       panel.grid.major = element_blank(),  
       axis.ticks = element_blank(), 
@@ -45,8 +44,8 @@ draw.map <- function(kindContext, year, ylim=c(0,85)) {
       axis.text.x = element_blank(), 
       axis.text.y = element_blank(),
       plot.title = element_text(size = rel(3))
-    )+
-    ggtitle(paste("Flow",year, sep=""))
+    )
+  gg
  }
 
 bezier.curve <- function(p1, p2, p3) {
@@ -92,8 +91,7 @@ bezier.uv.arc <- function(p1, p2) {
 
 bezier.uv.merc.arc <- function(p1, p2) {
   # http://dsgeek.com/2013/06/08/DrawingArcsonMaps.html
-  # Do a mercator projection of the latitude
-  # coordinates
+  # Do a mercator projection of the latitude coordinates
   pp1 <- p1
   pp2 <- p2
   pp1[2] <- asinh(tan(p1[2]/180 * pi))/pi * 180
@@ -104,21 +102,20 @@ bezier.uv.merc.arc <- function(p1, p2) {
   arc
 }
 
-draw.map.flow <- function(kindContext, file_map, title, flows, splitSize){
+draw.map.flow <- function(kindContext, file_map, flows, points, texts, title=''){
   width <- if(kindContext == 'region' | kindContext == 'state'){1000}else{1400}
   height <- if(kindContext == 'region' | kindContext == 'state'){1000}else{750}
 
   png(filename = file_map, width = width, height = height)
   
-  gg <- NULL
-  gg <- draw.map(kindContext, title, c(-90,90))
+  gg <- draw.map(kindContext, c(-90,90))
 
   for (i in 1:length(flows$trips)) {  
     arc <- bezier.uv.merc.arc(
       c(flows[i,]$ox, flows[i,]$oy), 
       c(flows[i,]$dx, flows[i,]$dy)
     )
-    size <- (flows[i,]$trips/splitSize)+0.1 # max(flows$trips)/30
+    size <- (flows[i,]$trips)+0.1
     colour <- "#EE0000" # green, #1292db, #6a6262
     gg <- gg + geom_path(
       data=as.data.frame(arc), 
@@ -128,59 +125,86 @@ draw.map.flow <- function(kindContext, file_map, title, flows, splitSize){
     ) 
   }
 
+  if(points == TRUE){
+    df <- data.frame(latitude=c(flows$oy,flows$dy),longitude=c(flows$ox,flows$dx))
+    df <- df[!duplicated(df), ]
+    # TODO flows$trips size or alfa
+    gg <- gg + geom_point(data=df,size=1,aes(x=longitude,y=latitude, group=NULL))
+
+    if(title != ''){
+      gg <- gg + ggtitle(paste("Flow",title, sep=""))
+    }  
+  }
+
+  if(texts == TRUE){
+    # TODO geom_text(aes(label=ifelse(PTS>24,as.character(Name),'')),hjust=0,just=0)
+  }
+
   print(gg)
   dev.off()
 }
 
-generate.gm <- function(imageFile, flows, theme, kindFlow, kindContext, kindTime){
+generate.gm <- function(imageFile, flows, kindFlow, kindContext, kindTime, theme='white', scale='normal', points=FALSE ,texts=FALSE){
 
   draw.map.theme <- theme
 
-  splitSize <- 0
-  if(kindContext == 'city' & kindFlow == 'all'){
-    splitSize <- 1000
-  }else if(kindContext == 'city'){
-    splitSize <- 50
-  }else if(kindContext == 'state' & kindFlow == 'fnf' & kindTime == 'all'){
-    splitSize <- 5000
-  }else if(kindContext == 'state' & kindFlow == 'fff' & kindTime == 'all'){
-    splitSize <- 5000
-  }else if(kindContext == 'state' & kindFlow == 'fft'){
-    splitSize <- 5000
-  }else if(kindContext == 'state' & kindFlow == 'all'){
-    splitSize <- 10000
-  }else if(kindContext == 'region' & kindTime == 'rangeYear'){
-    splitSize <- 500
-  }else if(kindContext == 'region'){
-    splitSize <- 1500
-  }else if(kindContext == 'state' & kindFlow == 'fnf' & kindTime == 'all'){
-    splitSize <- 500
-  }else if(kindContext == 'state' & kindFlow == 'fff' & kindTime == 'all'){
-    splitSize <- 500
-  }else if(kindContext == 'state' & kindFlow == 'fft'){
-    splitSize <- 500
-  }else if(kindContext == 'state' & kindFlow == 'all'){
-    splitSize <- 1000
-  }else if(kindContext == 'state'){
-    splitSize <- 50
-  }else if(kindContext == 'country' & kindFlow != 'fnf' & kindTime == 'all'){
-    splitSize <- 2000
-  }else if(kindContext == 'country' & kindFlow == 'fnf' & kindTime == 'all'){
-    splitSize <- 500
-  }else if(kindContext == 'country'){
-    splitSize <- 50
-  }else if(kindContext == 'continent' & kindFlow != 'fnf' & kindTime == 'all'){
-    splitSize <- 2000
-  }else if(kindContext == 'continent' & kindFlow != 'fnf'){
-    splitSize <- 200
-  }else if(kindContext == 'continent' & kindFlow == 'fnf' & kindTime == 'all'){
-    splitSize <- 500
-  }else if(kindContext == 'continent' & kindFlow == 'fnf'){
-    splitSize <- 30
-  }else if(kindContext == 'continent'){
-    splitSize <- 30
+  if(scale == 'normal'){
+    splitSize <- 0
+    if(kindContext == 'city' & kindFlow == 'all'){
+      splitSize <- 1000
+    }else if(kindContext == 'city'){
+      splitSize <- 50
+    }else if(kindContext == 'state' & kindFlow == 'fnf' & kindTime == 'all'){
+      splitSize <- 5000
+    }else if(kindContext == 'state' & kindFlow == 'fff' & kindTime == 'all'){
+      splitSize <- 5000
+    }else if(kindContext == 'state' & kindFlow == 'fft'){
+      splitSize <- 5000
+    }else if(kindContext == 'state' & kindFlow == 'all'){
+      splitSize <- 10000
+    }else if(kindContext == 'region' & kindTime == 'rangeYear'){
+      splitSize <- 500
+    }else if(kindContext == 'region'){
+      splitSize <- 1500
+    }else if(kindContext == 'state' & kindFlow == 'fnf' & kindTime == 'all'){
+      splitSize <- 500
+    }else if(kindContext == 'state' & kindFlow == 'fff' & kindTime == 'all'){
+      splitSize <- 500
+    }else if(kindContext == 'state' & kindFlow == 'fft'){
+      splitSize <- 500
+    }else if(kindContext == 'state' & kindFlow == 'all'){
+      splitSize <- 1000
+    }else if(kindContext == 'state'){
+      splitSize <- 50
+    }else if(kindContext == 'country' & kindFlow != 'fnf' & kindTime == 'all'){
+      splitSize <- 2000
+    }else if(kindContext == 'country' & kindFlow == 'fnf' & kindTime == 'all'){
+      splitSize <- 500
+    }else if(kindContext == 'country'){
+      splitSize <- 50
+    }else if(kindContext == 'continent' & kindFlow != 'fnf' & kindTime == 'all'){
+      splitSize <- 2000
+    }else if(kindContext == 'continent' & kindFlow != 'fnf'){
+      splitSize <- 200
+    }else if(kindContext == 'continent' & kindFlow == 'fnf' & kindTime == 'all'){
+      splitSize <- 500
+    }else if(kindContext == 'continent' & kindFlow == 'fnf'){
+      splitSize <- 30
+    }else if(kindContext == 'continent'){
+      splitSize <- 30
+    }
+    flows$trips <- flows$trips/splitSize # TODO maxvalue
+  }else if(scale == 'log'){
+    flows$trips <- log(flows$trips)
+  }else if(scale == 'log10'){
+    flows$trips <- log10(flows$trips)
+  }else if(scale == 'equal1'){
+    flows$trips <- rep(0.9,length(flows$trips))
+  }else if(scale == 'equal0.1'){
+    flows$trips <- rep(0,length(flows$trips))
   }
-  imageFile <- paste('./image/gm/',imageFile,sep='')
-  draw.map.flow(kindContext, imageFile, '', flows, splitSize)
+  
+  imageFile <- paste('./image/gm/',scale,'-',imageFile,sep='')
+  draw.map.flow(kindContext, imageFile, flows, points, texts)
 
 }

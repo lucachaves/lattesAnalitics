@@ -1,0 +1,3 @@
+UPDATE place SET latitude=44.93333, longitude=4.9 WHERE id=1183 AND kind='instituition';
+UPDATE place SET latitude=-29.684, longitude=-53.807 WHERE id=643 AND kind='instituition';
+...

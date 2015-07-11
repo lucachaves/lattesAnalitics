@@ -4,7 +4,7 @@ generate.flow <- function(nacional, instituition){
 	order <- NULL
 	if(instituition){
 		if(nacional){
-		order <- c('instituition', 'city', 'state', 'region', 'country', 'continent')
+			order <- c('instituition', 'city', 'state', 'region', 'country', 'continent')
 		}else{
 			order <- c('instituition', 'city', 'country', 'continent')
 		}	
@@ -23,7 +23,7 @@ generate.specific.from <- function(kindContext, destination, nacional, instituit
 	
 	from <- ''
 	for(i in order){
-		from <- paste(from,paste('public.place ', i,capitalize(destination),sep=''),sep=', ')
+		from <- paste(from,paste('public.place ',i,capitalize(destination),sep=''),sep=', ')
 		if(i == kindContext){
 			break;
 		}
@@ -87,11 +87,14 @@ generate.all.query <- function(kindContext, kindFlow, kindTime, valueTime, globa
 	if(kindContext == 'region' | kindContext == 'state'){
 		global <- FALSE
 	}
+	
 	if(kindTime == 'range'){
 		filter <- c(filter, paste("edge.end_year BETWEEN ",valueTime[1]," AND ",valueTime[2],sep=''))
 	}else if(kindTime == 'year'){
 		filter <- c(filter, paste("edge.end_year = ",valueTime,sep=''))
 	}
+
+
 	union <- ''
 	if(kindFlow == 'fnf'){
 		if(global){
@@ -108,7 +111,7 @@ generate.all.query <- function(kindContext, kindFlow, kindTime, valueTime, globa
 		}else{
 			union <- generate.specific.query(kindContext,TRUE,FALSE,TRUE,TRUE,filter)
 		}
-	}else if(kindFlow == 'fff' | kindFlow == 'fft'){
+	}else if(kindFlow == 'fff' | kindFlow == 'fft' | kindFlow == 'ffft'){
 		if(kindFlow == 'fff'){
 			filter <- c(filter,"edge.kind != 'work'")
 		}else if(kindFlow == 'fft'){
