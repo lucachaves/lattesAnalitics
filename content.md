@@ -35,19 +35,15 @@ tl-topInst-fnf-all
 stats-latteslocation
 
 ####### TODO #######
-# rank de onde vamos no exterior na formacao de doutorado (gráfico de barra?!)
+# tl-top-city
+# rank de onde vamos no exterior na formacao de doutorado (gráfico de barra/pizza?!)
 # calcular as métricas de mobilidade: DD, ID
 # dump mobilitygraph
+
 # rankInstituition vs DD
 # pegar código dos gráficos que já foram usados na dissertação
 
-# concentrar código de geracao de sql
-# Criar arquivo GML (igraph)
-	# http://igraph.org/r/doc/plot.common.html
-	# library(igraph)
-	# g<-read.graph("/Users/lucachaves/Documents/code/github/lucachaves/lattesAnalitics/src/image/gephi/lattes-states-all.gml",format=c("gml"))
-	# g$layout <- layout.circle
-	# print(g)
+# Criar arquivo GML (igraph) sna.r
 # gerar arquivos para o gephi (GML)
 	# Criar GML file http://gephi.github.io/users/supported-graph-formats/gml-format/
 	# OR
@@ -57,19 +53,13 @@ stats-latteslocation
 # calcular outras métricas de sna para comprar MMP: api gephi or igraph
 # pegar ids dePQs de computação e comparar seu DD com a média global
 # outros gráficos que estao no lattesGephi
-# concentrar o scale
 # filter: graduacao,doutorado...
 # graduacao: source,target, out/in
 # analisar a importancia do start_year
 # suprir todos os gráficos da dissertação
-# custom filter
 # validate generateQuery
 # siglas
 # custom title
-
-######## MC ########
-# same size comparator
-# colocar número
 
 ######## GM ########
 # same color (point edge)
@@ -79,4 +69,4 @@ stats-latteslocation
 
 ######## MFC ########
 # ordem
-# color: instituition?
+# color instituition?

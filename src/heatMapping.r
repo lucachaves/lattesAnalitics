@@ -1,6 +1,6 @@
 library(ggplot2)
 
-generate.heatmap <- function(kind, df, scale='normal',textvalue=FALSE, orderrow=NULL, range=NULL, title=FALSE){
+generate.heatmap <- function(kind, df, scale='normal',textvalue=FALSE, orderrow=NULL, range=NULL, title=FALSE, maxvalue=FALSE){
 
   label <- if(kind == 'square') 
     c('origem','destino')
@@ -14,11 +14,9 @@ generate.heatmap <- function(kind, df, scale='normal',textvalue=FALSE, orderrow=
     0
   }
   
-  # max_value <- max(df$valor)
+  #  <- max(df$valor)
   gg <- ggplot(df, aes(x=from, y=to)) +
     geom_tile(aes(fill = valor)) + 
-    scale_fill_gradient(low='white', high='grey20')+ # white,red
-    # scale_fill_continuous(low = "white", high = "red",limits=c(0, max_value), breaks=seq(1,max_value,by=max_value/6))+
     theme(
       title=element_text(size=14,face="bold"), 
       axis.text=element_text(size=14,face="bold"), 
@@ -26,6 +24,13 @@ generate.heatmap <- function(kind, df, scale='normal',textvalue=FALSE, orderrow=
       axis.text.x=element_text(angle=xangle)
     )+
     xlab(label[1])+ylab(label[2])
+
+  # white,red
+  if(maxvalue != FALSE){
+    gg <- gg + scale_fill_continuous(low="white", high="grey20", limits=c(0, maxvalue), breaks=round(seq(1,maxvalue,by=maxvalue/5)))
+  }else{
+    gg <- gg + scale_fill_gradient(low='white', high='grey20') 
+  }
 
   if(textvalue == TRUE){
     gg <- gg + geom_text(aes(fill = valor, label = round(valor, 1)))
