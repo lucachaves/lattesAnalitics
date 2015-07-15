@@ -22,10 +22,10 @@ time.interval <- function(end_year, start_year){
 	ID <- c()
 	IDi <- c()
 	for(i in 1:nrow(df)){
-		DD <- c(DD, gcd.hf(df[i,]$olatitude,df[i,]$olongitude,df[i,]$dlatitude,df[i,]$dlongitude))
-		DDi[df[i,]$id16] <- c(DDi[df[i,]$id16] , gcd.hf(df[i,]$olatitude,df[i,]$olongitude,df[i,]$dlatitude,df[i,]$dlongitude))
-		ID <- c(ID, time.interval(df[i,]$eyear, df[i,]$syear))
-		IDi[df[i,]$id16] <- c(IDi[df[i,]$id16], time.interval(df[i,]$eyear, df[i,]$syear))
+		DD <- c(DD, gcd.hf(df[i,]$slatitude,df[i,]$slongitude,df[i,]$tlatitude,df[i,]$tlongitude))
+		DDi[df[i,]$id16] <- c(DDi[df[i,]$id16] , gcd.hf(df[i,]$slatitude,df[i,]$slongitude,df[i,]$tlatitude,df[i,]$tlongitude))
+		ID <- c(ID, time.interval(df[i,]$end_year, df[i,]$syear))
+		IDi[df[i,]$id16] <- c(IDi[df[i,]$id16], time.interval(df[i,]$end_year, df[i,]$syear))
 	}
 
 	DDt <- c()

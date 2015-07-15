@@ -110,12 +110,12 @@ generate.flowmapping <- function(flows, kindContext, theme='white', scale='norma
   
   gg <- draw.map(kindContext)
 
-  for (i in 1:length(flows$trips)) {  
+  for (i in 1:length(flows$count)) {  
     arc <- bezier.uv.merc.arc(
-      c(flows[i,]$ox, flows[i,]$oy), 
-      c(flows[i,]$dx, flows[i,]$dy)
+      c(flows[i,]$slongitude, flows[i,]$slatitude), 
+      c(flows[i,]$tlongitude, flows[i,]$tlatitude)
     )
-    size <- (flows[i,]$trips)+0.1
+    size <- (flows[i,]$count)+0.1
     colour <- "#EE0000" # green, #1292db, #6a6262
     gg <- gg + geom_path(
       data=as.data.frame(arc), 
@@ -126,9 +126,9 @@ generate.flowmapping <- function(flows, kindContext, theme='white', scale='norma
   }
 
   if(points == TRUE){
-    df <- data.frame(latitude=c(flows$oy,flows$dy),longitude=c(flows$ox,flows$dx))
+    df <- data.frame(latitude=c(flows$slatitude,flows$tlatitude),longitude=c(flows$slongitude,flows$tlongitude))
     df <- df[!duplicated(df), ]
-    # TODO flows$trips size or alfa
+    # TODO flows$count size or alfa
     gg <- gg + geom_point(data=df,size=1,aes(x=longitude,y=latitude, group=NULL))   
   }
 
@@ -137,7 +137,7 @@ generate.flowmapping <- function(flows, kindContext, theme='white', scale='norma
   }
 
   if(textvalue == TRUE){
-    df <- data.frame(name=c(flows$oname,flows$dname),latitude=c(flows$oy,flows$dy),longitude=c(flows$ox,flows$dx))
+    df <- data.frame(name=c(flows$sacronym,flows$tacronym),latitude=c(flows$slatitude,flows$tlatitude),longitude=c(flows$slongitude,flows$tlongitude))
     df <- df[!duplicated(df), ]
     # TODO label=ifelse(PTS>24,as.character(Name),'')
     gg <- gg + geom_text(data=df,aes(label=name,x=longitude,y=latitude, group=NULL),hjust=0,just=0)

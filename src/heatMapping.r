@@ -1,6 +1,6 @@
 library(ggplot2)
 
-generate.heatmap <- function(kind, df, scale='normal',textvalue=FALSE, orderrow=NULL, range=NULL, title=FALSE, maxvalue=FALSE){
+generate.heatmap <- function(kind, df, scale='normal',textvalue=FALSE, orderrow=FALSE, range=NULL, title=FALSE, maxvalue=FALSE){
 
   label <- if(kind == 'square') 
     c('origem','destino')
@@ -14,7 +14,6 @@ generate.heatmap <- function(kind, df, scale='normal',textvalue=FALSE, orderrow=
     0
   }
   
-  #  <- max(df$valor)
   gg <- ggplot(df, aes(x=from, y=to)) +
     geom_tile(aes(fill = valor)) + 
     theme(
@@ -36,11 +35,11 @@ generate.heatmap <- function(kind, df, scale='normal',textvalue=FALSE, orderrow=
     gg <- gg + geom_text(aes(fill = valor, label = round(valor, 1)))
   }
 
-  if(title == TRUE){
+  if(title != FALSE){
     gg <- gg+ggtitle(title)
   }  
   
-  if(orderrow == TRUE){
+  if(orderrow != FALSE){
     gg <- gg+scale_y_discrete(limits=orderrow)
   }
 

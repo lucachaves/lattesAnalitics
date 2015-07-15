@@ -35,9 +35,9 @@ tl-topInst-fnf-all
 stats-latteslocation
 
 ####### TODO #######
-# tl-top-city
-# rank de onde vamos no exterior na formacao de doutorado (gráfico de barra/pizza?!)
-# calcular as métricas de mobilidade: DD, ID
+# rank de onde vamos no exterior na formacao de doutorado (horizontal bar/pie?!)
+# calcular as métricas de mobilidade: DD, ID, GR
+# pie, scatterplot, horizontal bar, histogram
 # dump mobilitygraph
 
 # rankInstituition vs DD

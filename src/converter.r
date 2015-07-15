@@ -79,15 +79,15 @@ convert.result.todf.timeline <- function(fname, tname, value, range){
   }
   from <- c()
   to <- c()
-  trips <- c()
+  count <- c()
   for(i in 1:length(namesrow)){
     for(j in 1:length(namescol)){
       to <- c(to, namesrow[i])
       from <- c(from, namescol[j])
-      trips <- c(trips, mat[i,j])
+      count <- c(count, mat[i,j])
     }
   }
-  df <- data.frame(from=from, to=to,valor=trips)
+  df <- data.frame(from=from, to=to,valor=count)
   df
 }
 
@@ -105,25 +105,25 @@ convert.result.todf.square <- function(fname, tname, value, orderrow){
   }
   from <- c()
   to <- c()
-  trips <- c()
+  count <- c()
   for(i in 1:nrow(mat)){
     for(j in 1:ncol(mat)){
       from <- c(from, names[i])
       to <- c(to, names[j])
-      trips <- c(trips, mat[i,j])
+      count <- c(count, mat[i,j])
     }
   }
-  df <- data.frame(from=from, to=to,valor=trips)
+  df <- data.frame(from=from, to=to,valor=count)
   df
 }
 
 convert.result.tomatrix <- function(flows){
-	names <- union(flows$oname,flows$dname)
+	names <- union(flows$sacronym,flows$tacronym)
 	mat <- matrix(0, nrow = length(names), ncol = length(names))
 	rownames(mat) = names
 	colnames(mat) = names
 	for(i in 1:nrow(flows)){
-		mat[flows[i,]$oname, flows[i,]$dname] = flows[i,]$trips
+		mat[flows[i,]$sacronym, flows[i,]$tacronym] = flows[i,]$count
 	}
 	mat
 }
