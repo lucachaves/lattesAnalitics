@@ -1,77 +1,80 @@
-library(RPostgreSQL)
 source('heatMapping.r')
 source('flowMapping.r')
 source('chordGraph.r')
 source('treeMap.r')
 source('generateQuery.r')
 source('converter.r')
+source('distance.r')
 
 ##### GM,MC,MFC #####
 # kindGraphic c('mc', 'gm', 'mfc')
 # kindFlow 		c('fnf','fff','fft','ffft','all')
 # kindContext c('city','state','region','country','continent')
-# kindTime <- c('all', 2013, 'all-years-1973-2013','each-years-1963-2013','set-year-1973-1983-1993-2003-2013')
-generate.graphic <- function(kindGraphic, kindFlow, kindContext, kindTime=c('all-time', 'set-year-1973-1983-1993-2003-2013'), filter=c(), scalemc=c('normal'), scalegm=c('equal0.1'), textvalue=FALSE, mapview=FALSE, maxvalue=FALSE){
-	 
+# kindTime <- c('all-time', 'year-2013', 'setYear-1973-1983-1993-2003-2013', 'rangeYear-all-1973-2013', 'rangeYear-each-1973-2013')
+generate.graphic <- function(kindGraphic, kindFlow, kindContext, kindTime=c('all-time', 'setYear-1973-1983-1993-2003-2013'), filter=c(), scalemc=c('normal'), scalegm=c('equal0.1'), textvalue=FALSE, mapview=FALSE){
 	for(flow in kindFlow){
 		for(context in kindContext){
 				print(paste(flow, context, sep='-'))
-
 				if(flow == 'fnf' | flow == 'fff'){
 					for(time in kindTime){
 						namet <- unlist(strsplit(time,'-'))
 						if('rangeYear'== namet[1]){
 							if('all'== namet[2]){
 								timef <- paste(namet[1],namet[3],namet[4],sep='-')
-								filter <- c(filter,timef)
-								print(paste(kindFlow, kindContext, timef,sep='-'))
-								generate.graphic.each(kindGraphic, flow, context, filter=filter, scalegm=scalegm, scalemc=scalemc, textvalue=textvalue, mapview=mapview, maxvalue=maxvalue)
+								print(paste(flow, context, timef,sep='-'))
+								generate.graphic.each(kindGraphic, flow, context, filter=c(filter,timef), scalegm=scalegm, scalemc=scalemc, textvalue=textvalue, mapview=mapview)
 							}else if('each' == namet[2]){
 								for(year in namet[3]:namet[4]){
 									timef <- paste('year',year,sep='-')
-									filter <- c(filter, timef)
-									print(paste(kindFlow, kindContext, timef,sep='-'))
-									generate.graphic.each(kindGraphic, flow, context, filter=filter, scalegm=scalegm, scalemc=scalemc, textvalue=textvalue, mapview=mapview, maxvalue=maxvalue)
+									print(paste(flow, context, timef,sep='-'))
+									generate.graphic.each(kindGraphic, flow, context, filter=c(filter, timef), scalegm=scalegm, scalemc=scalemc, textvalue=textvalue, mapview=mapview)
 								}
 							}
 						}
 						if('setYear'== namet[1]){
-							filter <- c(filter,time)
-							print(paste(kindFlow, kindContext, time,sep='-'))
-							generate.graphic.each(kindGraphic, flow, context, filter=filter, scalegm=scalegm, scalemc=scalemc, textvalue=textvalue, mapview=mapview, maxvalue=maxvalue)
+							range <- namet[! namet %in% c('setYear')]
+			  			result <- getdata(generate.query(context, flow, filter=c(filter, time)))
+							for(year in range){
+								timef <- paste('year',year,sep='-')
+								print(paste(flow, context, timef,sep='-'))
+								generate.graphic.each(kindGraphic, flow, context, filter=c(filter, timef), 
+									scalegm=scalegm, scalemc=scalemc, textvalue=textvalue, mapview=mapview, 
+									maxvalue=max(table(c(result$sacronym, result$tacronym))),
+									orderrow=union(result$sacronym, result$tacronym))
+							}
 						}
 						if('year'== namet[1]){
-							filter <- c(filter,time)
-							print(paste(kindFlow, kindContext, time,sep='-'))
-							generate.graphic.each(kindGraphic, flow, context, filter=filter, scalegm=scalegm, scalemc=scalemc, textvalue=textvalue, mapview=mapview, maxvalue=maxvalue)
+							print(paste(flow, context, time,sep='-'))
+							generate.graphic.each(kindGraphic, flow, context, filter=c(filter,time), scalegm=scalegm, scalemc=scalemc, textvalue=textvalue, mapview=mapview)
 						}
 					}
 				}
 				if(is.element('all-time',kindTime)){
-					print(paste(kindFlow, kindContext, 'all-time', sep='-'))
-					generate.graphic.each(kindGraphic, flow, context, filter=filter, scalegm=scalegm, scalemc=scalemc, textvalue=textvalue, mapview=mapview, maxvalue=maxvalue)
+					print(paste(flow, context, 'allTime', sep='-'))
+					generate.graphic.each(kindGraphic, flow, context, filter=c(filter,'allTime'), scalegm=scalegm, scalemc=scalemc, textvalue=textvalue, mapview=mapview)
 				}
 		}
 	}
 }
 
 ##### GM,MC,MFC #####
-generate.graphic.each <- function(kindGraphic, kindFlow, kindContext, filter=c(), scalemc=c('normal'), scalegm=c('equal0.1'), textvalue=FALSE, mapview=FALSE, maxvalue=maxvalue){
+generate.graphic.each <- function(kindGraphic, kindFlow, kindContext, filter=c(), scalemc=c('normal'), scalegm=c('equal0.1'), textvalue=FALSE, mapview=FALSE, maxvalue=FALSE, orderrow=FALSE){
 
 	namef <- if(length(filter)>0){
 		paste('-',paste(filter,collapse='-'),sep='')
 	}else{
 		''
 	}
+
 	imageFile <- paste(kindContext,'-',kindFlow,namef,'.png',sep='')
 	print(imageFile)
 
-  sql <- generate.query(kindContext, kindFlow, filter=filter)
-  cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",sql,"\n",sep=""))
+  sql <- generate.query(kindContext, kindFlow, filter=filter[!filter %in% c('allTime','maxvalue')])
+  # cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",sql,"\n",sep=""))
   flows <- getdata(sql)
   
   if(length(flows)>0){
-  	cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",flows,"\n",sep=""))
+  	# cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",flows,"\n",sep=""))
   	if(is.element('mc',kindGraphic)){
   		for(scale in scalemc){
   			imageFileMC <- paste(scale,'-',imageFile,sep='')
@@ -87,16 +90,6 @@ generate.graphic.each <- function(kindGraphic, kindFlow, kindContext, filter=c()
 			    c(600, 500)
 			  }else{
 			    c(1000,1000)
-			  }
-
-			  orderrow <- FALSE
-			  for(f in filter){
-				  if(unlist(strsplit(f,'-'))[1] == 'setYear'){
-				  	sql <- generate.query(kindContext, kindFlow, filter=c(f))
-	  				result <- getdata(sql)
-				  	orderrow <- union(result$sacronym, result$tacronym)
-				  	maxvalue <- max(table(c(result$sacronym, result$tacronym)))
-				  }	
 			  }
 
 			  flowsMC <- flows
@@ -122,16 +115,11 @@ generate.graphic.each <- function(kindGraphic, kindFlow, kindContext, filter=c()
 	  }
 
 	  if(is.element('gm',kindGraphic)){
-	  	
-	  	kindTime <- ''
-	  	for(f in filter){
-	  		if(!is.element(unlist(strsplit(f,'-'))[1],c('year','setYear','rangeYear')))
-	  			kindTime <- 'all'
-	  	}
 
 	  	for(scale in scalegm){
 	  		flowsGM <- flows
-	  		flowsGM$count <- convert.scale.value(flowsGM$count, scale, 'gm', kindContext=kindContext,kindFlow=kindFlow,kindTime=kindTime)
+	  		flowsGM$count <- convert.scale.value(flowsGM$count, scale, 'gm', 
+	  				kindContext=kindContext, kindFlow=kindFlow, kindTime=ifelse(is.element('allTime',filter),'all',''))
 	  		imageFileGM <- paste('./image/gm/',scale,'-',imageFile,sep='')
 			  if(mapview != FALSE){
 			  	kindContext <- mapview
@@ -225,7 +213,7 @@ generate.graphic.line <- function(kindFlow, kindNode='target', range=c(1970,2012
 	
 	imageFile <- paste(kindFlow,kindNode,paste(range,collapse='-'),sep='-')
 	imageFile <- paste('./image/line/line',imageFile,'.png',sep='')
-	png(filename = imageFile)
+	png(filename = imageFile, width=400, height=200)
 
 	gg <- if(kindFlow == 'doutorado-all-pop-log'){
 		ggplot(df, aes(x = years, y = value, colour = 'valor')) + 
@@ -234,8 +222,8 @@ generate.graphic.line <- function(kindFlow, kindNode='target', range=c(1970,2012
 			xlab('anos')+ylab('quantidade')
 	}else if(kindFlow == 'doutorado-all-nacional'){
 		ggplot(df, aes(x = years, y = value, colour = 'valor')) + 
-			geom_line(aes(y = log(all), colour = "nacional")) + 
-			geom_line(aes(y = log(nacional), colour = "total"))+
+			geom_line(aes(y = log(all), colour = "total")) + 
+			geom_line(aes(y = log(nacional), colour = "nacional"))+
 			xlab('anos')+ylab('quantidade')
 	}else if(kindFlow == 'doutorado'){
 		ggplot(df, aes(x = years, y = all)) + 
@@ -247,5 +235,149 @@ generate.graphic.line <- function(kindFlow, kindNode='target', range=c(1970,2012
 	dev.off()
 	cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",imageFile,"\n",sep=""))
 }
+
+##### PIE #####
+generate.graphic.pie <- function(kindContext, kindFlow, kindPie='inout', kindNode='all', filter=c()){
+	scaleValue <- c()
+	df <- if(kindPie == 'inout'){
+		scaleValue <- c("#00FF00", "#f1c40f")
+		sql <- generate.query(kindContext, kindFlow, kindQuery='name-count', kindNode=kindNode, filter=filter)
+		# cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",sql,"\n",sep=""))
+		flows <- getdata(sql)
+		internalFlow <- subset(flows,pid==131)$count/sum(flows$count)
+		data.frame(
+		  fluxo = c("externo", "interno"),
+		  percentage = c(internalFlow, 1-internalFlow)
+		)
+	}else{
+		scaleValue <- c("#0000FF", "#f1c40f", "#00FF00", "#FF0000")
+		sql <- generate.query(kindContext, kindFlow, kindNode=kindNode, filter=filter)
+		# cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",sql,"\n",sep=""))
+		flows <- getdata(sql)
+		internalFlow <- subset(flows,(sacronym=='brazil'&tacronym=='brazil'))$count/sum(flows$count)
+		outFlow <- sum(subset(flows,(sacronym=='brazil'&tacronym!='brazil'))$count)/sum(flows$count)
+		inFlow <- sum(subset(flows,(sacronym!='brazil'&tacronym=='brazil'))$count)/sum(flows$count)
+		externalFlow <- sum(subset(flows,(sacronym!='brazil'&tacronym!='brazil'))$count)/sum(flows$count)
+		data.frame(
+		  fluxo = c('interno', "entrada", "saída", "externo"),
+		  percentage = c(internalFlow, inFlow, outFlow, externalFlow)
+		)
+	}
+	
+	imageFile <- paste(kindPie,kindContext,kindFlow,kindNode,sep='-')
+	if(length(filter)>0){imageFile <- paste(imageFile, paste(filter,collapse='-'),sep='-')}
+	imageFile <- paste('./image/pie/',imageFile,'.png',sep='')
+	png(filename = imageFile)
+
+	gg <- ggplot(df, aes(x = "", y = percentage, fill = fluxo)) +
+	  geom_bar(width = 1, stat = "identity")+
+	  # geom_text(aes(label=paste(round(percentage*100,0),"%",sep="")))+
+	  scale_fill_manual(values = scaleValue)+
+	  coord_polar("y", start = 0)+
+	  # ggtitle("Padrão do Movimento Global")+
+	  theme(
+	  	legend.position = "none",
+	  	plot.title = element_text(size = rel(2)),
+		  panel.background = element_blank(),
+			panel.grid = element_blank(),
+			panel.border = element_blank(),
+			axis.ticks.x = element_blank(),
+			axis.text = element_text(size = 14),
+			axis.title.y = element_blank(),
+			axis.title.x = element_blank(),
+			plot.title = element_text(size = 16, face = "bold")
+		)
+
+	print(gg)
+	dev.off()
+	cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",imageFile,"\n",sep=""))
+}
+
+##### bartop #####
+# kindBar ('in','out','all')
+generate.graphic.bartop <- function(kindContext, kindFlow, kindNode='all', filter=c(), limit=5){
+	sql <- generate.query(kindContext, kindFlow, kindQuery='name-count', kindNode=kindNode, filter=filter)
+	# cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",sql,"\n",sep=""))
+	flows <- getdata(sql)
+	flows <- subset(flows,acronym!='brazil')
+	sum <- sum(flows$count)
+	df <- data.frame(percentage = ceiling(flows[1:limit,]$count*100/sum), pais = flows[1:limit,]$acronym)
+	print(df)
+	
+	# TODO
+	# color <- NULL
+	# color['brazil'] <- "#00FF00"
+	# colornames <- color[color %in% flows[order(-flows$count),]$acronym[1:limit]]
+	
+	imageFile <- paste(kindContext,kindFlow,kindNode,sep='-')
+	if(length(filter)>0){imageFile <- paste(imageFile, paste(filter,collapse='-'),sep='-')}
+	imageFile <- paste('./image/bar/',imageFile,'.png',sep='')
+	png(imageFile, 500, 200, pointsize = 12)
+
+	gg <- ggplot(df,aes(x= pais, y= percentage, fill=pais))+
+		geom_bar(stat="identity")+
+		geom_text(aes(label=pais, hjust= 0))+
+		coord_flip()+
+	  scale_x_discrete(limits=rev(flows[order(-flows$count),]$acronym[1:limit]))+
+	  # scale_fill_manual(values=colornames)+ 
+	  ylim(0, 75)+
+	  # ggtitle("Top 5 - Fluxo de Entrada no Brasil")+
+	  theme(
+	  	legend.position = "none",
+	  	plot.title = element_text(size = rel(2)),
+		  panel.background = element_blank(),
+			panel.grid = element_blank(),
+			panel.border = element_blank(),
+			axis.ticks.x = element_blank(),
+			axis.text = element_text(size = 14),
+			axis.text.y = element_blank(),
+			axis.title.y = element_blank(),
+			axis.title.x = element_blank(),
+			plot.title = element_text(size = 16, face = "bold")
+	  )
+
+	print(gg)
+	dev.off()
+	cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",imageFile,"\n",sep=""))
+}
+
+##### scatterplot #####
+generate.graphic.scatterplot <- function(kindContext, kindFlow, kindNode='all', filter=c()){
+	sql <- generate.query(kindContext, kindFlow, kindNode=kindNode, filter=filter, kindQuery='latitude-longitude-edge:start_year-edge:end_year')
+	cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",sql,"\n",sep=""))
+	flows <- getdata(sql)
+	flows.aggregate <- aggregate(list(count=rep(1,nrow(flows))), flows[,1:4], length)
+	dd <- distance.flow.global(flows.aggregate)
+	dd.all <- c()
+	year <- c()
+	# for(i in 1:nrow(flows)){
+	for(i in 1:100000){
+		dd.all <- c(dd.all, dd[paste(flows[i,]$slatitude,flows[i,]$slongitude,flows[i,]$tlatitude,flows[i,]$tlongitude,collapse='-')])
+		year <- c(year, flows[i,]$end_year)
+	}
+	metrics <- data.frame(dd=dd.all,year=year)
+
+	imageFile <- paste(kindContext,kindFlow,kindNode,sep='-')
+	if(length(filter)>0){imageFile <- paste(imageFile, paste(filter,collapse='-'),sep='-')}
+	
+	png(paste('./image/scatterplot/',imageFile,'.png',sep=''))
+	gg <- ggplot(metrics, aes(year, dd))+
+		geom_point()+
+		xlim(1950,2013)
+	print(gg)
+	dev.off()
+	cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",imageFile,"\n",sep=""))
+	
+	png(paste('./image/scatterplot/histogram',imageFile,'.png',sep=''))
+	gg <- ggplot(metrics, aes(dd))+
+		# geom_bar()
+		geom_histogram()
+		# geom_histogram(binwidth = 1)
+	print(gg)
+	dev.off()
+	cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",imageFile,"\n",sep=""))
+}
+
+##### histogram #####
 
 

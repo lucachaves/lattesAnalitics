@@ -34,9 +34,39 @@ LIMIT 10
 -- UPDATE acronym by id
 UPDATE place SET acronym='UNICAMP' WHERE id = 450;
 
+-- fff
+SELECT 
+  count(edge.kind)
+FROM 
+  public.edge, public.place
+WHERE 
+  edge.source = place.id AND place.kind = 'city';
 
+-- fft
+SELECT 
+  count(edge.kind)
+FROM 
+  public.edge
+WHERE 
+  edge.kind = 'work';
 
+-- numero de cidades de origem
+SELECT 
+  count(place.kind)
+FROM 
+  public.edge,
+  public.place
+WHERE 
+  edge.source = place.id AND place.kind = 'city'
 
+-- numero de instituicoes
+SELECT 
+  count(place.kind)
+FROM 
+  public.edge,
+  public.place
+WHERE 
+  edge.target = place.id AND place.kind = 'instituition'
 
 
 

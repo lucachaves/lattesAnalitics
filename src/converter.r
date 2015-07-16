@@ -17,7 +17,7 @@ convert.scale.value <- function(data, scale, kindGraphic, kindContext=NULL,kindF
 	  if(scale == 'equal0.1'){
 	    data <- rep(0,length(data))
 	  }
-	  if(scale == 'normal'){
+	  if(scale == 'normal'){ # TODO
 	    splitSize <- 0
 	    if(kindContext == 'city' & kindFlow == 'all'){
 	      splitSize <- 1000
@@ -31,8 +31,8 @@ convert.scale.value <- function(data, scale, kindGraphic, kindContext=NULL,kindF
 	      splitSize <- 5000
 	    }else if(kindContext == 'state' & kindFlow == 'all'){
 	      splitSize <- 10000
-	    }else if(kindContext == 'region' & kindTime == 'rangeYear'){
-	      splitSize <- 500
+	    # }else if(kindContext == 'region' & kindTime == 'rangeYear'){
+	    #   splitSize <- 500
 	    }else if(kindContext == 'region'){
 	      splitSize <- 1500
 	    }else if(kindContext == 'state' & kindFlow == 'fnf' & kindTime == 'all'){

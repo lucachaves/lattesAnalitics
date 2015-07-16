@@ -1,4 +1,5 @@
 library(Hmisc)
+library(RPostgreSQL)
 
 getdata <- function(sql){
 	drv <- dbDriver("PostgreSQL")
@@ -27,8 +28,6 @@ generate.flow <- function(nacional, instituition){
 }
 
 generate.specific.select <- function(kindContext, kindNode, kindQuery, allFlow=FALSE){
-	names <- unlist(strsplit(kindQuery,'-'))
-	fields <- c()
 	prefix <- if(kindNode=='all' | allFlow == TRUE){
 		' '
 	}else if(kindNode=='source'){
@@ -36,7 +35,8 @@ generate.specific.select <- function(kindContext, kindNode, kindQuery, allFlow=F
 	}else if(kindNode=='target'){
 		' t'
 	}
-	for(name in names){
+	fields <- c()
+	for(name in unlist(strsplit(kindQuery,'-'))){
 		table <- paste(kindContext,capitalize(kindNode),sep='')
 		prefixTable <- ' p'
 		if(grepl('edge:',name)){
@@ -76,7 +76,7 @@ generate.specific.where <- function(kindContext, kindNode, nacional, instituitio
 	where
 }
 
-generate.specific.query <- function(kindContext, nacionalSource, instituitionSource, nacionalTarget, instituitionTarget, filter, kindQuery='name-latitude-longitude', kindNode='all',kindFlow='all', allFlow=FALSE){
+generate.specific.query <- function(kindContext, nacionalSource, instituitionSource, nacionalTarget, instituitionTarget, filter, kindQuery='name-latitude-longitude', kindNode='all',kindFlow='all', allFlow=FALSE, appendSelect=''){
 	
 	# SELECT
 	kindContextSource <- ifelse((kindContext == 'instituition' & ((kindFlow == 'fnf')|(kindFlow == 'all' & instituitionSource == FALSE))),'city',kindContext)
@@ -96,6 +96,7 @@ generate.specific.query <- function(kindContext, nacionalSource, instituitionSou
 		"SELECT ",
 		specific.select
 	)
+	if(appendSelect != '') specific.select <- paste(specific.select,appendSelect)
 	
 	# FROM
 	specific.from <- if(kindNode == 'all'){
@@ -141,7 +142,7 @@ generate.specific.query <- function(kindContext, nacionalSource, instituitionSou
 }
 
 # kindNode= ('all-edge','all-node','source','target')
-generate.all.query <- function(kindContext, kindFlow, global='', filter=c(), kindNode='all', kindQuery='name-latitude-longitude', allFlow=FALSE){
+generate.all.query <- function(kindContext, kindFlow, global='', filter=c(), kindNode='all', kindQuery='name-latitude-longitude', allFlow=FALSE, appendSelect=''){
 	if(kindFlow == 'fff'){
 		filter <- c(filter,'fff')
 	}else if(kindFlow == 'fft'){
@@ -154,39 +155,39 @@ generate.all.query <- function(kindContext, kindFlow, global='', filter=c(), kin
 		if(kindNode == 'all'){
 			if(global == TRUE){
 				paste(
-					generate.specific.query(kindContext,TRUE,FALSE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,FALSE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,TRUE,FALSE,FALSE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,FALSE,FALSE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,FALSE,FALSE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,FALSE,FALSE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,FALSE,FALSE,FALSE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,FALSE,FALSE,FALSE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					sep=' '
 				)	
 			}else{
-				generate.specific.query(kindContext,TRUE,FALSE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow)
+				generate.specific.query(kindContext,TRUE,FALSE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect)
 			}
 		}else if(kindNode == 'target'){
 			if(global == TRUE){
 				paste(
-					generate.specific.query(kindContext,TRUE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,FALSE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,FALSE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					sep=' '
 				)
 			}else{
-				generate.specific.query(kindContext,TRUE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow)
+				generate.specific.query(kindContext,TRUE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect)
 			}
 		}else if(kindNode == 'source'){
 			if(global == TRUE){
 				paste(
-					generate.specific.query(kindContext,TRUE,FALSE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,FALSE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,FALSE,FALSE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,FALSE,FALSE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					sep=' '
 				)
 			}else{
-				generate.specific.query(kindContext,TRUE,FALSE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow)
+				generate.specific.query(kindContext,TRUE,FALSE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect)
 			}
 		}
 
@@ -195,28 +196,28 @@ generate.all.query <- function(kindContext, kindFlow, global='', filter=c(), kin
 		if(global == TRUE){
 			if(kindNode == 'all'){
 				paste(
-					generate.specific.query(kindContext,TRUE,TRUE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,TRUE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,TRUE,TRUE,FALSE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,TRUE,FALSE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,FALSE,TRUE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,FALSE,TRUE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,FALSE,TRUE,FALSE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,FALSE,TRUE,FALSE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					sep=' '
 				)
 			}else{ # source,target
 				paste(
-					generate.specific.query(kindContext,TRUE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,FALSE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,FALSE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					sep=' '
 				)
 			}
 		}else{ #nacional
 			if(kindNode == 'all'){	
-				generate.specific.query(kindContext,TRUE,TRUE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow)
+				generate.specific.query(kindContext,TRUE,TRUE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect)
 			}else{
-				generate.specific.query(kindContext,TRUE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow)
+				generate.specific.query(kindContext,TRUE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect)
 			}
 		}
 
@@ -225,61 +226,61 @@ generate.all.query <- function(kindContext, kindFlow, global='', filter=c(), kin
 		if(kindNode == 'all'){
 			if(global == TRUE){
 				paste(
-					generate.specific.query(kindContext,TRUE,FALSE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,FALSE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,TRUE,FALSE,FALSE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,FALSE,FALSE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,FALSE,FALSE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,FALSE,FALSE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,FALSE,FALSE,FALSE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,FALSE,FALSE,FALSE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,TRUE,TRUE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,TRUE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,TRUE,TRUE,FALSE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,TRUE,FALSE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,FALSE,TRUE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,FALSE,TRUE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,FALSE,TRUE,FALSE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,FALSE,TRUE,FALSE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					sep=' '
 				)
 			}else{
 				paste(
-					generate.specific.query(kindContext,TRUE,FALSE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,FALSE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,TRUE,TRUE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,TRUE,TRUE,TRUE,filter,kindQuery,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					sep=' '
 				)
 			}
 		}else if(kindNode == 'source'){
 			if(global == TRUE){
 				paste(
-					generate.specific.query(kindContext,TRUE,FALSE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,FALSE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,FALSE,FALSE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,FALSE,FALSE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,TRUE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,FALSE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,FALSE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					sep=' '
 				)
 			}else{
 				paste(
-					generate.specific.query(kindContext,TRUE,FALSE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,FALSE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,TRUE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					sep=' '
 				)
 			}
 		}else if(kindNode == 'target'){
 			if(global == TRUE){
 				paste(
-					generate.specific.query(kindContext,TRUE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,TRUE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					'UNION ALL',
-					generate.specific.query(kindContext,FALSE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow),
+					generate.specific.query(kindContext,FALSE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect),
 					sep=' '
 				)
 			}else{
-				generate.specific.query(kindContext,TRUE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow)
+				generate.specific.query(kindContext,TRUE,TRUE,FALSE,FALSE,filter,kindQuery, kindNode=kindNode,kindFlow=kindFlow, allFlow=allFlow, appendSelect=appendSelect)
 			}
 		}
 	}
@@ -293,10 +294,9 @@ generate.query <- function(
 	global='',
 	filter=c(),
 	kindNode='target',
-	range=c(1950,2013), 
 	limit='none', 
-	valuename=FALSE, 
-	kindQuery='acronym-latitude-longitude'
+	kindQuery='acronym-latitude-longitude',
+	range=c(1950,2013)
 ){
 
 	if(kindQuery == 'acronym-latitude-longitude'){
@@ -312,6 +312,9 @@ generate.query <- function(
 			sep=' '
 		)
 
+	}else if(kindQuery == 'latitude-longitude-edge:start_year-edge:end_year'){
+		generate.all.query(kindContext, kindFlow, global,filter=filter,kindQuery='latitude-longitude',appendSelect=', start_year, end_year')
+
 	}else if(kindQuery == 'top-name'){
 		paste(
 			"SELECT acronym FROM (",
@@ -319,6 +322,7 @@ generate.query <- function(
 			") flows ORDER BY count DESC",
 			if(limit != 'none'){paste("LIMIT ",limit)}
 		)
+
 	}else if(kindQuery == 'top-name-edge:end_year'){
 		topid <- paste(
 			"SELECT pid FROM (",
@@ -436,7 +440,7 @@ generate.filter <- function(kindFilter){
 			  }
 			  if('setYear' == unlist(strsplit(kf,'-'))[1]){
 					years <- unlist(strsplit(kf,'-'))
-			  	resultFilter <- c(resultFilter, paste('edge.end_year IN (',paste(years[2]:years[length(years)],collapse=', '),') ',sep=''))
+			  	resultFilter <- c(resultFilter, paste('edge.end_year IN (',paste(years[2:length(years)],collapse=', '),') ',sep=''))
 			  }
 			  if('rangeYear' == unlist(strsplit(kf,'-'))[1]){
 					years <- unlist(strsplit(kf,'-'))

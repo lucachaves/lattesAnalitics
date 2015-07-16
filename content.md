@@ -35,14 +35,13 @@ tl-topInst-fnf-all
 stats-latteslocation
 
 ####### TODO #######
-# rank de onde vamos no exterior na formacao de doutorado (horizontal bar/pie?!)
-# calcular as métricas de mobilidade: DD, ID, GR
-# pie, scatterplot, horizontal bar, histogram
+# calcular as métricas de mobilidade: DD(scatterplot/histogram), ID, GR(edge table)
 # dump mobilitygraph
 
 # rankInstituition vs DD
 # pegar código dos gráficos que já foram usados na dissertação
 
+# image/todo
 # Criar arquivo GML (igraph) sna.r
 # gerar arquivos para o gephi (GML)
 	# Criar GML file http://gephi.github.io/users/supported-graph-formats/gml-format/
