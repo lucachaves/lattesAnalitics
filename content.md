@@ -36,11 +36,7 @@ stats-latteslocation
 
 ####### TODO #######
 # calcular as métricas de mobilidade: DD(scatterplot/histogram), ID, GR(edge table)
-# dump mobilitygraph
-
-# rankInstituition vs DD
 # pegar código dos gráficos que já foram usados na dissertação
-
 # image/todo
 # Criar arquivo GML (igraph) sna.r
 # gerar arquivos para o gephi (GML)

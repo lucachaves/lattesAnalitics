@@ -53,7 +53,7 @@ print("BEGIN")
 # generate.graphic.treemap('instituition','fnf',kindNode='target', limit=25, filter=c('year-1993'), include='all')
 # generate.graphic.treemap('instituition','fnf',kindNode='target', limit=25, filter=c('year-1983'), include='all')
 # generate.graphic.treemap('instituition','fnf',kindNode='target', limit=25, filter=c('year-1973'), include='all')
-generate.graphic.treemap('instituition','fft',kindNode='target', limit=25, include='all')
+# generate.graphic.treemap('instituition','fft',kindNode='target', limit=25, include='all')
 
 #### LINE
 # generate.graphic.line('doutorado')
@@ -123,14 +123,17 @@ generate.graphic.treemap('instituition','fft',kindNode='target', limit=25, inclu
 
 # print(generate.all.query('instituition', 'all', kindNode='all',kindQuery='id-acronym'))
 
-#### name-count
 # print(generate.query('instituition', 'all', kindQuery='name-count', kindNode='all', limit=10, filter=c('doutorado')))
 # print(generate.query('instituition', 'all', kindQuery='name-count', kindNode='all', filter=c(), limit=10))
 # print(generate.query('state', 'fff', filter=c('setYear-1973-1983-1993-2003-2013')))
 # print(generate.query('country', 'fff', kindNode='target', kindQuery='name-count', filter=c('doutorado')))
 # print(generate.query('country', 'fff', kindNode='all', filter=c('doutorado')))
 # print(generate.query('city','fff',kindNode='all',filter=c('doutorado'),kindQuery='latitude-longitude-edge:start_year-edge:end_year'))
+# print(generate.query('instituition','fff',kindNode='all',filter=c('doutorado','topDegreeInst')))
+# print(generate.all.query('instituition','fff',filter=c('doutorado','topDegreeInst'),kindQuery='acronym'))
 
+# print(generate.query('instituition', 'fft', kindQuery='name-count', kindNode='target'))
+# print(generate.query('city', 'all',kindNode='all'))
 
 #### DB
 # getdata('select * from place')

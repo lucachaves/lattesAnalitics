@@ -26,6 +26,13 @@ distance.flow.global <-function(df){
 	DD
 }
 
+id16 <- c()
+DD <- c()
+for(i in 1:nrow(flows)){
+	DD <- c(DD, gcd.hf(flows[i,]$slatitude, flows[i,]$slongitude, flows[i,]$tlatitude, flows[i,]$tlongitude))
+	id16 <- c(id16, flows[i,]$id16)
+}
+
 # TODO DD, ID (global/by id16)
 # distance.flow <-function(df){
 # 	# global

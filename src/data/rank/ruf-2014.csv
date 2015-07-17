@@ -1,0 +1,193 @@
+Ranking;Nome da Universidade;sigla;UF;Pública/Privada;Ensino;Pesquisa;Mercado;Inovação;Internacionalização;Nota
+1;Universidade de São Paulo;USP;SP;Pública;7;1;1;1;3;97
+2;Universidade Federal de Minas Gerais;UFMG;MG;Pública;1;6;2;3;9;96.55
+3;Universidade Federal do Rio de Janeiro;UFRJ;RJ;Pública;3;3;5;4;4;96.53
+4;Universidade Federal do Rio Grande do Sul;UFRGS;RS;Pública;2;5;9;6;13;95.87
+5;Universidade Estadual de Campinas;UNICAMP;SP;Pública;8;2;11;2;17;95.23
+6;Universidade Estadual Paulista Júlio de Mesquita Filho;UNESP;SP;Pública;11;7;5;7;24;93.17
+7;Universidade Federal de Santa Catarina;UFSC;SC;Pública;6;10;22;8;12;91.79
+8;Universidade de Brasília;UNB;DF;Pública;4;12;22;10;11;91.09
+9;Universidade Federal do Paraná;UFPR;PR;Pública;10;13;11;5;20;91.01
+10;Universidade Federal de São Carlos;UFSCAR;SP;Pública;5;9;43;13;19;89.54
+11;Universidade Federal de Pernambuco;UFPE;PE;Pública;13;16;9;11;22;89.14
+12;Universidade Federal de São Paulo;UNIFESP;SP;Pública;14;4;52;25;10;88.37
+13;Universidade Federal do Ceará;UFC;CE;Pública;21;11;11;27;5;87.76
+14;Universidade Federal da Bahia;UFBA;BA;Pública;20;17;11;14;16;87.27
+15;Universidade Federal de Santa Maria;UFSM;RS;Pública;15;14;32;23;41;86.44
+16;Universidade Federal Fluminense;UFF;RJ;Pública;18;22;22;24;23;85.9
+17;Universidade do Estado do Rio de Janeiro;UERJ;RJ;Pública;34;8;16;41;6;85.63
+18;Pontifícia Universidade Católica do Rio Grande do Sul;PUCRS;RS;Privada;24;19;16;12;25;84.87
+19;Universidade Federal de Viçosa;UFV;MG;Pública;9;20;52;8;63;84.51
+20;Pontifícia Universidade Católica do Rio de Janeiro;PUC-RIO;RJ;Privada;22;21;22;27;6;83.91
+21;Universidade Federal do Rio Grande do Norte;UFRN;RN;Pública;16;30;32;22;37;82.64
+22;Universidade Federal de Goiás;UFG;GO;Pública;27;23;16;33;49;82.08
+23;Universidade Estadual de Maringá;UEM;PR;Pública;23;24;32;14;75;81.24
+24;Universidade Estadual de Londrina;UEL;PR;Pública;17;34;32;30;56;80.9
+25;Universidade Federal da Paraíba;UFPB;PB;Pública;26;26;43;29;62;79.03
+26;Universidade Federal de Uberlândia;UFU;MG;Pública;29;27;43;17;60;78.79
+27;Universidade Federal de Lavras;UFLA;MG;Pública;12;25;96;16;72;77.87
+28;Universidade Federal de Juiz de Fora;UFJF;MG;Pública;25;28;71;21;44;76.32
+29;Universidade Federal do Pará;UFPA;PA;Pública;44;32;43;20;34;75.89
+30;Universidade Federal de Pelotas;UFPEL;RS;Pública;33;18;123;34;29;72.34
+31;Universidade Federal do Espírito Santo;UFES;ES;Pública;66;35;22;48;35;71.95
+32;Pontifícia Universidade Católica do Paraná;PUCPR;PR;Privada;50;53;16;35;45;71.78
+33;Universidade Federal de Sergipe;UFS;SE;Pública;65;37;32;26;53;70.97
+34;Universidade Federal de Ouro Preto;UFOP;MG;Pública;37;36;96;18;40;70.61
+35;Universidade Presbiteriana Mackenzie;MACKENZIE;SP;Privada;32;73;3;51;65;70.39
+36;Universidade Federal de Mato Grosso;UFMT;MT;Pública;45;41;52;95;83;68.82
+37;Universidade Federal de Mato Grosso do Sul;UFMS;MS;Pública;41;55;52;44;99;68.74
+38;Universidade Federal de Alagoas;UFAL;AL;Pública;69;43;43;42;33;68.03
+39;Universidade Estadual do Ceará;UECE;CE;Pública;71;48;22;44;89;67.86
+40;Fundação Universidade Federal do Abc;UFABC;SP;Pública;51;15;150;56;1;67.16
+40;Universidade Federal do Amazonas;UFAM;AM;Pública;49;62;43;32;69;67.16
+42;Pontifícia Universidade Católica de Minas Gerais;PUC MINAS;MG;Privada;36;78;5;83;106;67.09
+43;Universidade do Vale do Rio dos Sinos;UNISINOS;RS;Privada;28;83;16;56;125;67.05
+44;Universidade de Caxias do Sul;UCS;RS;Privada;68;60;43;19;39;66.02
+45;Universidade Federal do Piauí;UFPI;PI;Pública;47;58;71;30;100;65.9
+46;Universidade Federal de Campina Grande;UFCG;PB;Pública;39;46;96;74;109;64.69
+47;Universidade Federal Rural do Rio de Janeiro;UFRRJ;RJ;Pública;37;40;123;67;79;64.26
+48;Universidade Católica de Brasília;UCB;DF;Privada;97;45;52;44;21;63.37
+49;Universidade Federal de Alfenas;UNIFAL-MG;MG;Pública;54;44;96;58;95;62.95
+50;Universidade Estadual do Oeste do Paraná;UNIOESTE;PR;Pública;40;61;96;48;111;62.79
+51;Universidade São Francisco;USF;SP;Privada;82;42;71;95;2;62.6
+52;Universidade Federal de São João Del Rei;UFSJ;MG;Pública;56;39;123;58;30;62.25
+53;Universidade Tecnológica Federal do Paraná;UTFPR;PR;Pública;42;75;71;36;110;62.11
+54;Pontifícia Universidade Católica de São Paulo;PUCSP;SP;Privada;19;120;5;74;168;62.01
+55;Universidade Federal do Rio Grande;FURG;RS;Pública;63;29;150;51;28;61.43
+56;Universidade Federal do Maranhão;UFMA;MA;Pública;76;63;52;38;97;61.24
+57;Fundação Universidade Federal de Ciências da Saúde de Porto Alegre;UFCSPA;RS;Pública;31;33;-;74;47;60.98
+58;Universidade Federal Rural de Pernambuco;UFRPE;PE;Pública;64;38;123;44;96;60.87
+59;Universidade Federal do Triângulo Mineiro;UFTM;MG;Pública;35;56;123;95;88;60.78
+60;Universidade Estadual de Ponta Grossa;UEPG;PR;Pública;72;49;96;42;92;60.52
+61;Universidade Estadual de Santa Cruz;UESC;BA;Pública;81;47;96;53;26;60.49
+62;Universidade Federal de Itajubá;UNIFEI;MG;Pública;30;54;171;38;35;59.95
+63;Universidade Nove de Julho;UNINOVE;SP;Privada;46;106;32;58;117;58.72
+64;Universidade de Pernambuco;UPE;PE;Pública;85;68;32;-;83;58.08
+65;Universidade do Vale do Itajaí;UNIVALI;SC;Privada;52;89;71;58;68;57.37
+66;Universidade Luterana do Brasil;ULBRA;RS;Privada;103;71;43;74;82;55.98
+67;Universidade Positivo;UP;PR;Privada;66;108;22;74;49;55.94
+68;Fundação Universidade do Estado de Santa Catarina;UDESC;SC;Pública;73;66;71;-;128;55.86
+69;Universidade Paulista;UNIP;SP;Privada;48;130;3;-;114;54.51
+70;Universidade de Franca;UNIFRAN;SP;Privada;115;74;52;63;67;54.39
+71;Universidade de Fortaleza;UNIFOR;CE;Privada;93;100;16;53;108;54.3
+72;Fundação Universidade Federal do Pampa;UNIPAMPA;RS;Pública;57;64;150;83;26;53.56
+73;Universidade Tiradentes;UNIT;SE;Privada;114;84;32;-;38;53.52
+74;Universidade Estadual do Norte Fluminense Darcy Ribeiro;UENF;RJ;Pública;126;31;150;37;64;51.81
+75;Universidade Metodista de São Paulo;UMESP;SP;Privada;43;133;52;83;69;51.8
+76;Universidade Regional de Blumenau;FURB;SC;Pública;75;98;71;53;105;51.68
+77;Universidade do Estado do Amazonas;UEA;AM;Pública;100;88;52;-;57;51.22
+78;Universidade de Ribeirão Preto;UNAERP;SP;Privada;84;87;96;58;57;50.8
+79;Universidade Estácio de Sá;UNESA;RJ;Privada;79;115;22;-;122;50.34
+80;Pontifícia Universidade Católica de Campinas;PUC-CAMPINAS;SP;Privada;58;105;71;-;126;50.31
+81;Universidade Cruzeiro do Sul;UNICSUL;SP;Privada;91;65;123;-;18;50.11
+82;Universidade Federal do Estado do Rio de Janeiro;UNIRIO;RJ;Pública;70;70;150;-;73;49
+83;Universidade de Mogi Das Cruzes;UMC;SP;Privada;105;96;71;67;76;48.66
+84;Universidade Feevale;FEEVALE;RS;Privada;53;95;123;95;115;48.32
+85;Universidade de Taubaté;UNITAU;SP;Pública;86;101;71;-;130;47.02
+86;Universidade do Estado da Bahia;UNEB;BA;Pública;89;111;52;83;137;46.88
+87;Universidade de Santa Cruz do Sul;UNISC;RS;Privada;62;128;71;74;102;46.61
+88;Universidade Estadual de Feira de Santana;UEFS;BA;Pública;151;50;96;83;54;46.38
+89;Universidade Estadual do Sudoeste da Bahia;UESB;BA;Pública;139;51;123;83;52;45.99
+90;Universidade Guarulhos;UNG;SP;Privada;123;91;96;95;31;45.26
+91;Universidade do Grande Rio Professor José de Souza Herdy;UNIGRANRIO;RJ;Privada;90;116;71;-;46;44.89
+92;Universidade Estadual do Centro Oeste;UNICENTRO;PR;Pública;83;103;123;40;155;44.82
+93;Fundação Universidade Federal do Tocantins;UFT;TO;Pública;132;85;71;95;94;43.44
+94;Pontifícia Universidade Católica de Goiás;PUC GOIAS;GO;Privada;122;131;11;-;126;43.39
+95;Universidade Estadual de Montes Claros;UNIMONTES;MG;Pública;87;99;123;67;138;43.3
+96;Universidade São Judas Tadeu;USJT;SP;Privada;102;138;32;-;107;42.53
+97;Universidade Regional Integrada do Alto Uruguai e Das Missões;URI;RS;Privada;168;72;52;83;124;42.4
+98;Universidade Metodista de Piracicaba;UNIMEP;SP;Privada;108;114;71;-;131;42.3
+99;Universidade do Sul de Santa Catarina;UNISUL;SC;Privada;117;121;52;95;169;42.05
+100;Universidade Regional do Cariri;URCA;CE;Pública;80;93;150;-;152;41.92
+101;Universidade do Vale do Paraíba;UNIVAP;SP;Privada;160;52;123;-;14;41.87
+102;Universidade Católica de Santos;UNISANTOS;SP;Privada;60;147;71;-;154;41.79
+103;Universidade Católica de Pernambuco;UNICAP;PE;Privada;113;146;22;-;134;41.58
+104;Universidade Salvador;UNIFACS;BA;Privada;109;154;22;-;66;41.25
+105;Universidade do Extremo Sul Catarinense;UNESC;SC;Privada;162;57;123;65;76;41.13
+106;Universidade Anhembi Morumbi;UAM;SP;Privada;55;178;32;83;181;40.78
+107;Universidade Fumec;FUMEC;MG;Privada;111;152;32;-;89;40.72
+108;Universidade Regional do Noroeste do Estado do Rio Grande do Sul;UNIJUI;RS;Privada;59;160;52;-;180;40.71
+109;Universidade Estadual da Paraíba;UEPB;PB;Pública;136;82;96;74;160;40.59
+110;Universidade de Marília;UNIMAR;SP;Privada;88;127;96;64;151;40.4
+111;Universidade Cidade de São Paulo;UNICID;SP;Privada;112;109;123;-;31;40.05
+112;Universidade de Passo Fundo;UPF;RS;Privada;155;79;96;67;71;39.8
+113;Universidade Estadual de Goiás;UEG;GO;Pública;110;123;71;-;172;39.75
+114;Universidade José do Rosário Vellano;UNIFENAS;MG;Privada;107;119;96;95;159;39.68
+115;Fundação Universidade Federal da Grande Dourados;UFGD;MS;Pública;135;67;150;67;117;39.66
+116;Universidade Federal do Acre;UFAC;AC;Pública;141;77;123;83;86;38.77
+117;Universidade Católica de Pelotas;UCPEL;RS;Privada;148;59;150;-;51;38.6
+118;Universidade Estadual do Rio Grande do Sul;UERGS;RS;Pública;127;97;123;95;14;38.51
+119;Universidade do Sagrado Coração;USC;SP;Privada;153;86;96;-;8;38.43
+120;Universidade Estadual do Vale do Acaraú;UVA;CE;Pública;101;151;52;-;149;38.34
+121;Universidade do Oeste Paulista;UNOESTE;SP;Privada;99;124;96;-;162;38.05
+122;Fundação Universidade Federal do Vale do São Francisco;UNIVASF;PE;Pública;132;81;150;74;81;37.51
+123;Universidade Estadual de Mato Grosso do Sul;UEMS;MS;Pública;98;92;171;-;143;37.5
+124;Universidade Veiga de Almeida;UVA;RJ;Privada;92;141;96;-;54;37.46
+125;Universidade de Sorocaba;UNISO;SP;Privada;117;125;96;-;129;37.2
+126;Universidade da Região de Joinville;UNIVILLE;SC;Privada;106;149;71;95;166;36.96
+127;Universidade Norte do Paraná;UNOPAR;PR;Privada;164;112;52;65;57;36.61
+128;Universidade Federal Rural do Semi-Árido;UFERSA;RN;Pública;128;69;171;-;140;36.28
+129;Fundação Universidade Federal de Rondônia;UNIR;RO;Pública;142;107;71;-;146;36.04
+130;Universidade Federal de Roraima;UFRR;RR;Pública;78;139;123;-;131;35.86
+131;Universidade Federal dos Vales do Jequitinhonha e Mucuri;UFVJM;MG;Pública;138;76;150;95;120;35.82
+132;Universidade Municipal de São Caetano do Sul;USCS;SP;Pública;77;137;150;-;41;35.19
+133;Universidade do Estado de Minas Gerais;UEMG;MG;Pública;61;163;123;95;135;34.59
+134;Universidade Bandeirante de São Paulo;UNIBAN;SP;Privada;186;94;96;67;43;34.48
+135;Universidade Salgado de Oliveira;UNIVERSO;RJ;Privada;125;162;52;-;97;34.48
+136;Universidade Tuiuti do Paraná;UTP;PR;Privada;74;164;123;74;147;33.85
+137;Universidade Federal do Recôncavo da Bahia;UFRB;BA;Pública;129;80;-;83;119;33.84
+138;Universidade de Santo Amaro;UNISA;SP;Privada;116;132;123;-;113;33.61
+139;Universidade da Amazônia;UNAMA;PA;Privada;104;161;96;-;74;33.15
+140;Universidade Católica do Salvador;UCSAL;BA;Privada;120;176;43;-;112;32.99
+141;Universidade Camilo Castelo Branco;UNICASTELO;SP;Privada;169;90;123;-;83;31.89
+142;Universidade de Uberaba;UNIUBE;MG;Privada;178;122;71;48;161;30.81
+143;Universidade Santa Cecília;UNISANTA;SP;Privada;94;173;96;-;104;30.72
+144;Universidade Potiguar;UNP;RN;Privada;121;183;52;-;115;30.47
+145;Universidade Federal Rural da Amazônia;UFRA;PA;Pública;130;102;-;95;78;29.87
+146;Universidade do Estado do Rio Grande do Norte;UERN;RN;Pública;149;113;123;83;148;29.15
+147;Universidade Estadual do Piauí;UESPI;PI;Pública;145;145;71;-;156;28.59
+148;Universidade do Oeste de Santa Catarina;UNOESC;SC;Pública;119;171;96;-;156;28.44
+149;Universidade Católica Dom Bosco;UCDB;MS;Privada;150;143;71;95;176;27.89
+150;Universidade Vila Velha;UVV;ES;Privada;157;156;52;95;167;27.34
+151;Universidade de Cuiabá;UNIC / PITAGORAS;MT;Privada;172;136;71;-;145;26.71
+152;Universidade Anhanguera;UNIDERP;MS;Privada;171;134;71;-;176;26.59
+153;Universidade Federal da Fronteira Sul;UFFS;SC;Pública;140;117;171;-;91;26.34
+154;Universidade Vale do Rio Doce;UNIVALE;MG;Privada;124;175;96;-;163;26.18
+155;Universidade Castelo Branco;UCB;RJ;Privada;185;140;71;-;120;25.31
+156;Universidade Nilton Lins;UNINILTONLINS;AM;Privada;187;126;96;-;153;24.9
+157;Universidade do Ceuma;UNICEUMA;MA;Privada;152;142;123;-;60;24.43
+158;Universidade Comunitária da Região de Chapecó;UNOCHAPECÓ;SC;Privada;164;135;96;-;174;24.32
+159;Universidade do Estado de Mato Grosso;UNEMAT;MT;Pública;154;118;150;-;173;24.13
+160;Universidade Estadual de Ciências da Saúde de Alagoas;UNCISAL;AL;Pública;95;172;150;-;186;23.7
+161;Universidade Estadual do Maranhão;UEMA;MA;Pública;170;150;96;67;179;23.67
+162;Universidade Católica de Petrópolis;UCP;RJ;Privada;96;166;171;-;176;23.57
+163;Universidade do Estado do Pará;UEPA;PA;Pública;158;148;123;83;141;22.53
+164;Universidade Paranaense;UNIPAR;PR;Privada;183;104;171;-;141;22.46
+165;Universidade Santa Úrsula;USU;RJ;Privada;191;110;171;-;47;21.91
+166;Universidade Presidente Antônio Carlos;UNIPAC;MG;Privada;188;170;52;-;131;21.21
+167;Universidade Federal do Oeste do Pará;UFOPA;PA;Pública;143;158;150;-;93;19.88
+168;Universidade do Contestado;UNC;SC;Privada;177;155;123;-;80;19.47
+169;Universidade Metropolitana de Santos;UNIMES;SP;Privada;164;157;123;-;150;19.26
+170;Universidade Estadual do Norte do Paraná;UENP;PR;Pública;137;165;150;-;171;18.8
+171;Universidade de Rio Verde;FESURV;GO;Pública;184;129;150;-;170;18.59
+172;Universidade Braz Cubas;UBC;SP;Privada;176;168;96;-;182;18.12
+173;Universidade do Vale do Sapucaí;UNIVÁS;MG;Privada;163;153;150;-;135;17.46
+174;Universidade de Cruz Alta;UNICRUZ;RS;Privada;161;144;171;-;158;16.59
+175;Universidade Federal do Amapá;UNIFAP;AP;Pública;146;159;171;-;164;15.8
+176;Universidade Iguaçu;UNIG;RJ;Privada;180;174;123;-;87;15.26
+177;Universidade Cândido Mendes;UCAM;RJ;Privada;182;189;71;-;-;13.93
+178;Universidade Federal da Integração Latino-Americana;UNILA;PR;Pública;134;177;-;-;143;13.79
+179;Universidade de Itaúna;UI;MG;Privada;159;169;171;95;165;12.99
+180;Universidade Estadual de Alagoas;UNEAL;AL;Pública;167;180;150;-;139;11.81
+181;Universidade do Grande Abc;UNIABC;SP;Privada;179;178;150;-;102;11.77
+182;Universidade da Integração Internacional da Lusofonia Afro-Brasileira;UNILAB;CE;Pública;131;187;171;-;-;11.02
+183;Universidade Estadual de Roraima;UERR;RR;Pública;173;185;123;-;183;10.99
+184;Universidade Vale do Rio Verde;UNINCOR;MG;Privada;190;167;171;-;175;10.21
+185;Universidade do Planalto Catarinense;UNIPLAC;SC;Privada;192;182;150;-;123;9.22
+186;Universidade Severino Sombra;USS;RJ;Privada;175;181;-;-;101;8.6
+187;Universidade da Região da Campanha;URCAMP;RS;Privada;189;184;150;-;184;7.37
+188;Universidade do Estado do Amapá;UEAP;AP;Pública;144;186;-;-;-;7.35
+189;Universidade do Tocantins;UNITINS;TO;Pública;147;190;171;-;-;6.54
+190;Universidade Ibirapuera;UNIB;SP;Privada;174;188;171;95;184;5.88
+191;Universidade Virtual do Estado do Maranhão;UNIVIMA;MA;Pública;156;-;-;-;-;4.02
+192;Universidade Alto Vale do Rio do Peixe;UNIARP;SC;Privada;181;191;-;-;-;1.86
