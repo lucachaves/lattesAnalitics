@@ -14,24 +14,24 @@ time.interval.specific <- function(end_year, start_year){
 	ifelse((end_year - start_year > 0), end_year-start_year, 0)
 }
 
-time.interval.global <- function(df){
+# time.interval.global <- function(df){
 
-}
+# }
 
-distance.flow.global <-function(df){
-	DD <- c()
-	for(i in 1:nrow(df)){
-		DD[paste(df[i,]$slatitude,df[i,]$slongitude,df[i,]$tlatitude,df[i,]$tlongitude,collapse='-')] <- gcd.hf(df[i,]$slatitude,df[i,]$slongitude,df[i,]$tlatitude,df[i,]$tlongitude)
-	}
-	DD
-}
+# distance.flow.global <-function(df){
+# 	DD <- c()
+# 	for(i in 1:nrow(df)){
+# 		DD[paste(df[i,]$slatitude,df[i,]$slongitude,df[i,]$tlatitude,df[i,]$tlongitude,collapse='-')] <- gcd.hf(df[i,]$slatitude,df[i,]$slongitude,df[i,]$tlatitude,df[i,]$tlongitude)
+# 	}
+# 	DD
+# }
 
-id16 <- c()
-DD <- c()
-for(i in 1:nrow(flows)){
-	DD <- c(DD, gcd.hf(flows[i,]$slatitude, flows[i,]$slongitude, flows[i,]$tlatitude, flows[i,]$tlongitude))
-	id16 <- c(id16, flows[i,]$id16)
-}
+# id16 <- c()
+# DD <- c()
+# for(i in 1:nrow(flows)){
+# 	DD <- c(DD, gcd.hf(flows[i,]$slatitude, flows[i,]$slongitude, flows[i,]$tlatitude, flows[i,]$tlongitude))
+# 	id16 <- c(id16, flows[i,]$id16)
+# }
 
 # TODO DD, ID (global/by id16)
 # distance.flow <-function(df){

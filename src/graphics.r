@@ -70,11 +70,11 @@ generate.graphic.each <- function(kindGraphic, kindFlow, kindContext, filter=c()
 	print(imageFile)
 
   sql <- generate.query(kindContext, kindFlow, filter=filter[!filter %in% c('allTime','maxvalue')])
-  # cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",sql,"\n",sep=""))
+  cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",sql,"\n",sep=""))
   flows <- getdata(sql)
   
   if(length(flows)>0){
-  	# cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",flows,"\n",sep=""))
+  	cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",flows,"\n",sep=""))
   	if(is.element('mc',kindGraphic)){
   		for(scale in scalemc){
   			imageFileMC <- paste(scale,'-',imageFile,sep='')
@@ -342,6 +342,7 @@ generate.graphic.bartop <- function(kindContext, kindFlow, kindNode='all', filte
 }
 
 ##### scatterplot #####
+##### histogram #####
 generate.graphic.scatterplot <- function(kindContext, kindFlow, kindNode='all', filter=c()){
 	sql <- generate.query(kindContext, kindFlow, kindNode=kindNode, filter=filter, kindQuery='latitude-longitude-edge:start_year-edge:end_year')
 	cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",sql,"\n",sep=""))
@@ -378,6 +379,45 @@ generate.graphic.scatterplot <- function(kindContext, kindFlow, kindNode='all', 
 	cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",imageFile,"\n",sep=""))
 }
 
-##### histogram #####
 
+###### IN/OUT graphic
+generate.graphic.inoutput <- function(kindContext){
+	sql <- generate.query(kindContext, 'all')
+	cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",sql,"\n",sep=""))
+  flows <- getdata(sql)
+  inputPlace <- c()
+  outputPlace <- c()
+	for(i in 1:nrow(flows)){  
+		if(!is.element(flows[i,]$tacronym,names(inputPlace)))
+			inputPlace[flows[i,]$tacronym] = 0
+		if(!is.element(flows[i,]$sacronym,names(outputPlace)))
+			outputPlace[flows[i,]$sacronym] = 0
+
+		inputPlace[flows[i,]$tacronym] <- inputPlace[flows[i,]$tacronym] + flows[i,]$count
+		outputPlace[flows[i,]$sacronym] <- outputPlace[flows[i,]$sacronym] + flows[i,]$count
+	}
+	names <- union(names(inputPlace),names(outputPlace))
+
+	inputFinal <- c()
+	outputFinal <- c()
+	for(i in 1:length(names)){ 
+		inputFinal <- c(inputFinal, ifelse(is.element(names[i],names(inputPlace)),inputPlace[names[i]],0))
+		outputFinal <- c(outputFinal, ifelse(is.element(names[i],names(outputPlace)),outputPlace[names[i]],0))
+	}
+
+	inout <- data.frame(name=names, input=log(inputFinal), output=log(outputFinal))
+	linedf <- data.frame(x=c(5,15),y=c(5,15))
+
+	png(paste('./image/scatterplot/inout-',kindContext,'-all.png',sep=''))
+	gg <- ggplot(inout, aes(input, output))+
+		geom_point()+
+		geom_text(data=inout,aes(label=name,x=input,y=output, group=NULL),hjust=0,just=0)+
+		geom_line(data=linedf,aes(x=x,y=y, group=NULL))+
+		xlab('entrada')+ylab('saída')+
+		xlim(5,15)+ylim(5,15)
+	print(gg)
+	dev.off()
+	cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",imageFile,"\n",sep=""))
+
+}
 

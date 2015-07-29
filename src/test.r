@@ -8,7 +8,11 @@ print("BEGIN")
 # generate.graphic(c('mc', 'gm'),c('fft','all','ffft','fff','fnf'),c('country'),scalemc=c('normal','log'),scalegm=c('normal','equal0.1'))
 # generate.graphic(c('mfc'),c('fff'),c('country'))
 # generate.graphic(c('mfc'),c('fnf','fff','fft','ffft','all'),c('country'))
-# generate.graphic(c('gm'),c('all'),c('city'),kindTime=c('all-time'),scale=c('equal0.1')) #TODO HARD
+# generate.graphic(c('gm'),c('all'),c('city'),kindTime=c('all-time'),scalegm=c('equal0.1')) #TODO HARD
+# fluxos 2606 e total 17576
+# generate.graphic(c('gm'),c('fff'),c('city'),kindTime=c('year-2013'),scalegm=c('equal0.1')) #TODO HARD
+# fluxos e total
+# generate.graphic(c('gm'),c('fff'),c('city'),kindTime=c('year-1983'),scalegm=c('equal0.1')) #TODO HARD
 
 # ### MC,GM,MFC fff doutorado
 # generate.graphic(c('mc', 'gm', 'mfc'),c('fff'),c('country','state','region'),kindTime=c('setYear-1983-1998-2013'),filter=c('doutorado'))
@@ -90,6 +94,12 @@ print("BEGIN")
 # generate.graphic.scatterplot('city','fff',kindNode='all',filter=c('doutorado'))
 # generate.graphic.scatterplot('city','fnf',kindNode='all')
 
+#### INOUTPUT
+# generate.graphic.inoutput('state')
+# generate.graphic.inoutput('country')
+
+
+
 #### GENERATE QUERY
 # print(generate.all.query('city', 'fnf',kindNode='all'))
 # print(generate.all.query('city', 'fnf',kindNode='target'))
@@ -135,8 +145,17 @@ print("BEGIN")
 # print(generate.query('instituition', 'fft', kindQuery='name-count', kindNode='target'))
 # print(generate.query('city', 'all',kindNode='all'))
 
+
 #### DB
 # getdata('select * from place')
+
+### capitais
+# capitais = c('sao paulo', 'rio de janeio', 'belo horizonte', 'vitoria', 'curitiba', 'florianopolis', 'porto alegre', 'cuiaba', 'goiania', 'campo grande', 'brasilia', 'salvador', 'aracaju', 'maceio', 'recife', 'joao pessoa', 'natal', 'fortaleza', 'sao luiz', 'teresina', 'palmas', 'belem', 'manaus', 'rio branco', 'macapa', 'porto velho', 'boa vista')
+# 760380/(760380+834592) 48%
+# sum(rs[rs$acronym %in% c('sao paulo', 'rio de janeio', 'belo horizonte', 'vitoria', 'curitiba', 'florianopolis', 'porto alegre', 'cuiaba', 'goiania', 'campo grande', 'brasilia', 'salvador', 'aracaju', 'maceio', 'recife', 'joao pessoa', 'natal', 'fortaleza', 'sao luiz', 'teresina', 'palmas', 'belem', 'manaus', 'rio branco', 'macapa', 'porto velho', 'boa vista'),]$count)
+# 834592/(760380+834592)
+# sum(rs[!rs$acronym %in% c('sao paulo', 'rio de janeio', 'belo horizonte', 'vitoria', 'curitiba', 'florianopolis', 'porto alegre', 'cuiaba', 'goiania', 'campo grande', 'brasilia', 'salvador', 'aracaju', 'maceio', 'recife', 'joao pessoa', 'natal', 'fortaleza', 'sao luiz', 'teresina', 'palmas', 'belem', 'manaus', 'rio branco', 'macapa', 'porto velho', 'boa vista'),]$count)
+
 
 print("END")
 # sink()
