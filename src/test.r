@@ -97,6 +97,8 @@ print("BEGIN")
 #### INOUTPUT
 # generate.graphic.inoutput('state')
 # generate.graphic.inoutput('country')
+# generate.graphic.inoutput('region')
+# generate.graphic.inoutput('continent')
 
 
 

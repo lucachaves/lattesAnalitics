@@ -16,6 +16,7 @@ circlize
 * cor
 * evolução do número de doutroes
 * substituir os demais gráficos do lattesGephi (treemap, scatterplot, histograma)
+* country acronym http://www.worldatlas.com/aatlas/ctycodes.htm
 
 ## MIX
 

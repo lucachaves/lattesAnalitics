@@ -387,7 +387,9 @@ generate.graphic.inoutput <- function(kindContext){
   flows <- getdata(sql)
   inputPlace <- c()
   outputPlace <- c()
-	for(i in 1:nrow(flows)){  
+	for(i in 1:nrow(flows)){ 
+		# if(flows[i,]$tacronym == flows[i,]$sacronym)
+		# 	next 
 		if(!is.element(flows[i,]$tacronym,names(inputPlace)))
 			inputPlace[flows[i,]$tacronym] = 0
 		if(!is.element(flows[i,]$sacronym,names(outputPlace)))
@@ -405,19 +407,64 @@ generate.graphic.inoutput <- function(kindContext){
 		outputFinal <- c(outputFinal, ifelse(is.element(names[i],names(outputPlace)),outputPlace[names[i]],0))
 	}
 
-	inout <- data.frame(name=names, input=log(inputFinal), output=log(outputFinal))
-	linedf <- data.frame(x=c(5,15),y=c(5,15))
+	inout <- if(kindContext == 'country'){
+		data.frame(name=names, input=log10(inputFinal), output=log10(outputFinal))
+	} else if(kindContext == 'state') {
+		data.frame(name=names, input=log(inputFinal,15), output=log(outputFinal,15))
+		# data.frame(name=names, input=inputFinal, output=outputFinal)
+		# data.frame(name=names, input=inputFinal^(1/20), output=outputFinal^(1/20))
+		# data.frame(name=names, input=log10(inputFinal)^5, output=log10(outputFinal)^5)
+		# data.frame(name=names, input=log10(inputFinal), output=log10(outputFinal))
+		# data.frame(name=names, input=log(inputFinal,50), output=log(outputFinal,50))
+	} else {
+		data.frame(name=names, input=log(inputFinal), output=log(outputFinal))
+	}
 
-	png(paste('./image/scatterplot/inout-',kindContext,'-all.png',sep=''))
+	if(kindContext == 'state') {
+		inoutput <- inout[order(inout$input),]
+		# inout$input <- inout$input+seq(0, 2.6, by=0.1)
+		# inout$output <- inout$output+seq(0, 2.6, by=0.1)
+		# 1:27
+		# seq(0, 2.6, by=0.1)
+		# rep(0.5,27)
+		inout2<-data.frame(name=c(as.character(inout$name),as.character(inout$name)),value=c(inout$input,inout$output),flow=c(rep('input',27),rep('output',27)))
+		# http://muuankarski.github.io/luntti/R/bars_order.html
+		ggplot(inout2,aes(x=name,y=value,fill=flow))+geom_bar(stat="identity",position="fill")
+	}
+	
+	linedf <- if(kindContext == 'country') {
+		data.frame(x=c(2.1,4.2),y=c(2.1,4.2))
+	} else if(kindContext == 'state') {
+		data.frame(x=c(1.9,6.6),y=c(1.9,6.6))
+	} else {
+		data.frame(x=c(6,15),y=c(6,15))
+	}
+
+	# png(paste('./image/scatterplot/inout-',kindContext,'-all2.png',sep=''))
+	postscript(paste('./image/scatterplot/inout-',kindContext,'-all.eps',sep=''), width = 480, height = 480)
 	gg <- ggplot(inout, aes(input, output))+
-		geom_point()+
-		geom_text(data=inout,aes(label=name,x=input,y=output, group=NULL),hjust=0,just=0)+
+		# geom_point()+
+		geom_text(data=inout,aes(label=name,x=input,y=output, group=NULL),hjust=0)+
 		geom_line(data=linedf,aes(x=x,y=y, group=NULL))+
-		xlab('entrada')+ylab('saída')+
-		xlim(5,15)+ylim(5,15)
+		# xlab('entrada')+ylab('saída')
+		xlab('inflow')+ylab('outflow')+
+		theme(
+	    title=element_text(family='Arial',size=12), 
+	    axis.text=element_text(family='Arial',size=12), 
+	    axis.title=element_text(family='Arial',size=12)#,
+	  )
+	
+	if(kindContext == 'country') {
+		gg <- gg + xlim(2.1,4.2)+ylim(2.1,4.2)
+	} else if(kindContext == 'state') {
+		gg <- gg + xlim(1.9,6.6)+ylim(1.9,6.6)
+	} else {
+		gg <- gg + xlim(6,15)+ylim(6,15)
+	}
+	
 	print(gg)
 	dev.off()
-	cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",imageFile,"\n",sep=""))
+	# cat(paste(format(Sys.time(), ">>>> %d/%m/%Y %X"),"\n",imageFile,"\n",sep=""))
 
 }
 

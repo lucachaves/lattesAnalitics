@@ -4,6 +4,10 @@
 
 library(ggplot2) 
 
+
+
+
+
 # data/latteslocation/data-latteslocation.zip
 degrees <- read.csv("degrees.csv")
 degrees_count <- read.csv("degrees_count.csv")
@@ -155,18 +159,25 @@ plot(flow$years, flow$distances, xlim=c(1940,2014))
 # http://stackoverflow.com/questions/7714677/r-scatterplot-with-too-many-points
 df <- data.frame(x = flow$years,y=flow$distances)
 
+# http://stackoverflow.com/questions/8545035/scatterplot-with-marginal-histograms-in-ggplot2
+# https://github.com/daattali/ggExtra
+# http://www.r-bloggers.com/example-8-41-scatterplot-with-marginal-histograms/
 library(ggplot2) 
-ggplot(df,aes(x=x,y=y)) + 
-  geom_point(alpha = 0.3) + 
+library(ggExtra)
+p <- ggplot(df,aes(x=x,y=y)) + 
+  geom_point() + 
+  # geom_point(alpha = 0.3) + 
   # xlab("year") + ylab("distance (m)")+ggtitle("Distance by Year")+
-  xlab("ano") + ylab("distância (m)")+
+  # xlab("ano") + ylab("distância (m)")+
+  xlab("year") + ylab("distance (m)")+
   theme(
-    title=element_text(size=14,face="bold"), 
-    axis.text=element_text(size=14,face="bold"), 
-    axis.title=element_text(size=14,face="bold")#,
+    title=element_text(size=12,face="bold"), 
+    axis.text=element_text(size=12,face="bold"), 
+    axis.title=element_text(size=12,face="bold")#,
     # axis.text.x=element_text(angle=-90)
   )+
   xlim(1940,2014)
+ggExtra::ggMarginal(p, margins = "y", type = "histogram")
 
 ggplot(df,aes(x=x,y=y)) + 
   geom_point(alpha = 0.3) + 
